@@ -1,0 +1,1896 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* iPhone 15 Pro Max optimization */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+    
+    header {
+        padding-top: max(20px, env(safe-area-inset-top) + 10px);
+    }
+    
+    footer {
+        padding-bottom: max(20px, env(safe-area-inset-bottom) + 10px);
+    }
+}
+
+/* Touch-optimized interactions */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Enhanced touch targets for iPhone 15 Pro Max */
+button, .btn, .quiz-button, .word-button, .modal-option, .verb-option, 
+.lesson-card, .game-mode-btn, a[class*="btn"], .touch-target {
+    min-width: 48px;
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+/* Large screen optimizations for iPhone 15 Pro Max (428×926) */
+@media screen and (max-width: 430px) and (max-height: 930px) {
+    html {
+        font-size: 18px; /* Larger base font for better readability */
+    }
+    
+    .lesson-nav, .game-mode-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .lesson-card, .game-mode-btn {
+        padding: 25px;
+        font-size: 1.1em;
+        min-height: 100px;
+    }
+    
+    .quiz-button, .btn {
+        padding: 18px 25px;
+        font-size: 1.1em;
+        min-height: 55px;
+    }
+    
+    .game-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+        font-size: 1.1em;
+    }
+    
+    /* Optimize table display for narrow screens */
+    table {
+        font-size: 0.95em;
+    }
+    
+    th, td {
+        padding: 12px 8px;
+    }
+    
+    /* Better spacing for content */
+    .usage-grid, .verb-form-grid, .answer-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .usage-card, .modal-option, .verb-option {
+        padding: 20px;
+        font-size: 1.05em;
+        min-height: 80px;
+    }
+}
+
+/* Landscape orientation for iPhone 15 Pro Max */
+@media screen and (max-width: 930px) and (max-height: 430px) and (orientation: landscape) {
+    header {
+        padding: 15px 20px;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    main {
+        margin: 20px 0;
+    }
+    
+    .lesson-nav, .game-mode-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .lesson-card, .game-mode-btn {
+        padding: 20px;
+        min-height: 80px;
+    }
+    
+    .game-stats {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 15px 10px;
+    }
+}
+
+/* High DPI displays (Retina) optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Sharper borders and shadows */
+    .lesson-card, .game-mode-btn, .quiz-button, .btn {
+        border: 0.5px solid rgba(255,255,255,0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    /* Enhanced gradients for Retina */
+    .lesson-card {
+        background: linear-gradient(135deg, 
+            #667eea 0%, #667eea 25%, 
+            #764ba2 75%, #764ba2 100%);
+    }
+}
+
+/* Touch feedback animations */
+@keyframes touchFeedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+.touch-feedback:active {
+    animation: touchFeedback 0.1s ease;
+}
+
+button:active, .btn:active, .quiz-button:active, 
+.lesson-card:active, .game-mode-btn:active {
+    animation: touchFeedback 0.1s ease;
+    opacity: 0.8;
+}
+
+/* Scroll behavior optimizations */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Improved form elements for touch */
+input[type="text"], input[type="email"], textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, 
+textarea:focus, select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+}
+
+/* Game-specific touch optimizations */
+.modal-option:active, .verb-option:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+.draggable-word {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* Improved visibility for small text */
+small, .small-text {
+    font-size: max(14px, 0.875em);
+    line-height: 1.4;
+}
+
+/* Better contrast for accessibility */
+@media (prefers-contrast: high) {
+    .lesson-card, .game-mode-btn {
+        border: 3px solid #fff;
+    }
+    
+    .quiz-button, .btn {
+        border: 2px solid #fff;
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #e0e0e0;
+    }
+    
+    .game-container, .stat-card, .example-box {
+        background: #2a2a3e;
+        color: #e0e0e0;
+        border: 1px solid #3a3a5e;
+    }
+    
+    table {
+        background: #2a2a3e;
+        color: #e0e0e0;
+    }
+    
+    th {
+        background: #3a3a5e;
+    }
+    
+    td {
+        border-bottom-color: #3a3a5e;
+    }
+    
+    .input-field {
+        background: #2a2a3e;
+        color: #e0e0e0;
+        border-color: #3a3a5e;
+    }
+    
+    .word-button {
+        background: #2a2a3e;
+        color: #e0e0e0;
+        border-color: #007bff;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    header, footer, nav, .game-controls, .btn, button {
+        display: none !important;
+    }
+    
+    .lesson-card, .example-box, table {
+        break-inside: avoid;
+        border: 1px solid #000;
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* Additional mobile-first responsive improvements */
+@media (max-width: 768px) {
+    /* Larger clickable areas */
+    .lesson-nav {
+        gap: 20px;
+    }
+    
+    .lesson-card {
+        padding: 25px;
+        min-height: 120px;
+    }
+    
+    /* Better text scaling */
+    h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+    h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+    h3 { font-size: clamp(1.2rem, 4vw, 1.5rem); }
+    
+    /* Improved table responsiveness */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Better form layout */
+    .exercise-container {
+        padding: 20px;
+    }
+    
+    .exercise-box {
+        padding: 20px;
+        line-height: 1.8;
+    }
+    
+    /* Optimized game elements */
+    .game-stats {
+        margin: 20px 0;
+    }
+    
+    .answer-grid {
+        gap: 15px;
+    }
+    
+    .modal-option, .verb-option {
+        padding: 20px;
+        min-height: 70px;
+        font-size: 1.1em;
+    }
+}
+
+/* Ultra-wide screen optimizations */
+@media (min-width: 1400px) {
+    .container, main {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .lesson-nav, .game-mode-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .usage-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+header {
+    background: linear-gradient(135deg, #2d6cdf 0%, #1e3c72 100%);
+    color: #fff;
+    padding: max(20px, env(safe-area-inset-top) + 10px) 20px 20px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+header h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-weight: 700;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0 0;
+    display: flex;
+    justify-content: center;
+    gap: min(30px, 8vw);
+    flex-wrap: wrap;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.1);
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    min-width: 44px; /* iOS touch target */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+nav a:hover, nav a:active {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+main {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #fff;
+    padding: clamp(20px, 5vw, 40px);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+h1, h2, h3 {
+    color: #2d6cdf;
+    line-height: 1.2;
+}
+
+h2 {
+    border-bottom: 3px solid #2d6cdf;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
+}
+
+h3 {
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+}
+
+.grammar-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+}
+
+.grammar-table th, .grammar-table td {
+    border: 1px solid #ddd;
+    padding: clamp(8px, 2vw, 12px);
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.grammar-table th {
+    background: linear-gradient(135deg, #2d6cdf, #1e3c72);
+    color: white;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+}
+
+.grammar-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Mobile table scroll */
+@media (max-width: 768px) {
+    .grammar-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .grammar-table table {
+        width: 100%;
+        min-width: 600px;
+    }
+}
+
+.example-box {
+    background: #e8f4f8;
+    border-left: 5px solid #2d6cdf;
+    padding: clamp(12px, 3vw, 15px);
+    margin: 15px 0;
+    border-radius: 5px;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+
+.vietnamese-note {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: clamp(12px, 3vw, 15px);
+    margin: 15px 0;
+    border-radius: 8px;
+    font-style: italic;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+
+.formula-box {
+    background: #f0f8ff;
+    border: 2px dashed #2d6cdf;
+    padding: clamp(15px, 4vw, 20px);
+    margin: 20px 0;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: clamp(1rem, 3vw, 1.1rem);
+}
+
+.lesson-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.lesson-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: clamp(15px, 4vw, 20px);
+    border-radius: 15px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    min-height: 44px; /* iOS touch target */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.lesson-card:hover, .lesson-card:active {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.lesson-card h3 {
+    margin: 0 0 10px 0;
+    color: white;
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
+}
+
+.lesson-card p {
+    margin: 0;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+
+.game-container {
+    background: #fff;
+    border-radius: 15px;
+    padding: clamp(20px, 5vw, 30px);
+    margin: 20px 0;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.quiz-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: clamp(12px, 3vw, 15px) clamp(20px, 5vw, 30px);
+    margin: 10px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    min-width: 44px; /* iOS touch target */
+    min-height: 44px;
+    font-weight: 600;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.quiz-button:hover, .quiz-button:active {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.quiz-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.6;
+}
+
+.score-display {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    padding: clamp(15px, 4vw, 20px);
+    border-radius: 15px;
+    text-align: center;
+    margin: 20px 0;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-weight: 600;
+}
+
+.progress-bar {
+    background: #e0e0e0;
+    border-radius: 25px;
+    height: clamp(15px, 3vw, 20px);
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100%;
+    border-radius: 25px;
+    transition: width 0.5s ease;
+}
+
+.input-field {
+    width: 100%;
+    padding: clamp(12px, 3vw, 15px);
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    margin: 10px 0;
+    transition: border-color 0.3s ease;
+    min-height: 44px; /* iOS touch target */
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #2d6cdf;
+    box-shadow: 0 0 10px rgba(45, 108, 223, 0.3);
+}
+
+.word-button {
+    background: #fff;
+    border: 2px solid #2d6cdf;
+    color: #2d6cdf;
+    padding: clamp(8px, 2vw, 10px) clamp(15px, 4vw, 20px);
+    margin: 5px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    min-width: 44px; /* iOS touch target */
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.word-button:hover, .word-button:active {
+    background: #2d6cdf;
+    color: white;
+}
+
+.word-button:disabled {
+    background: #f0f0f0;
+    border-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.celebration {
+    animation: bounce 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.star {
+    color: #ddd;
+    transition: color 0.3s ease;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.star.filled {
+    color: #ffd700;
+}
+
+footer {
+    text-align: center;
+    padding: 20px 0 max(20px, env(safe-area-inset-bottom));
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    margin-top: 40px;
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
+    backdrop-filter: blur(10px);
+}
+
+/* Games Specific Styles */
+.speech-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: #f9fafb;
+    border-radius: 15px;
+    border: 2px solid #e5e7eb;
+}
+
+.speech-type {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.speech-type h3 {
+    color: #6366f1;
+    margin-bottom: 0.5rem;
+}
+
+.speech-type .definition {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.speech-type .example {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.speech-type .translation {
+    color: #059669;
+    font-style: italic;
+}
+
+.arrow {
+    font-size: 2rem;
+    color: #6366f1;
+    font-weight: bold;
+}
+
+.tense-changes,
+.adverb-changes {
+    margin: 2rem 0;
+}
+
+.tense-table table,
+.adverb-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tense-table th,
+.tense-table td,
+.adverb-table th,
+.adverb-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tense-table th,
+.adverb-table th {
+    background: #6366f1;
+    color: white;
+    font-weight: 600;
+}
+
+.tense-table td:first-child,
+.adverb-table td:first-child {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.no-change {
+    background: #f0f9ff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid #3b82f6;
+    margin: 2rem 0;
+}
+
+.no-change h3 {
+    color: #1e40af;
+    margin-bottom: 1rem;
+}
+
+.no-change-cases {
+    display: grid;
+    gap: 1rem;
+}
+
+.case-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+.case-item h4 {
+    color: #1e40af;
+    margin-bottom: 0.5rem;
+}
+
+.pronoun-changes,
+.time-adverbs,
+.place-adverbs {
+    margin: 2rem 0;
+}
+
+.pronoun-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.pronoun-table th,
+.pronoun-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.pronoun-table th {
+    background: #8b5cf6;
+    color: white;
+    font-weight: 600;
+}
+
+.place-examples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.place-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    text-align: center;
+}
+
+.place-item .direct {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.place-item .reported {
+    color: #059669;
+    font-weight: bold;
+}
+
+.place-item .example {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.question-types {
+    display: grid;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.yes-no-questions,
+.wh-questions {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 5px solid #6366f1;
+}
+
+.yes-no-questions h3,
+.wh-questions h3 {
+    color: #6366f1;
+    margin-bottom: 1rem;
+}
+
+.formula-box .formula {
+    background: #f3f4f6;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #1f2937;
+    text-align: center;
+    margin: 1rem 0;
+    border: 2px solid #d1d5db;
+}
+
+.example-pair {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+}
+
+.example-pair .direct {
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.example-pair .reported {
+    color: #059669;
+    font-weight: 600;
+}
+
+.command-structures {
+    display: grid;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.positive-commands,
+.negative-commands {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.positive-commands {
+    border-left: 5px solid #22c55e;
+}
+
+.negative-commands {
+    border-left: 5px solid #ef4444;
+}
+
+.positive-commands h3 {
+    color: #22c55e;
+}
+
+.negative-commands h3 {
+    color: #ef4444;
+}
+
+.reporting-verbs {
+    margin: 2rem 0;
+}
+
+.verb-categories {
+    display: grid;
+    gap: 2rem;
+}
+
+.verb-category {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-top: 4px solid #6366f1;
+}
+
+.verb-category h4 {
+    color: #6366f1;
+    margin-bottom: 1rem;
+}
+
+.verb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.5rem;
+}
+
+.verb-item {
+    background: #f3f4f6;
+    padding: 0.5rem;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid #d1d5db;
+}
+
+.verb-item em {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.pattern-examples {
+    margin: 1rem 0;
+}
+
+.pattern-item {
+    background: #f0f9ff;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 2px solid #3b82f6;
+    margin: 1rem 0;
+}
+
+.pattern-item .pattern {
+    color: #1e40af;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.pattern-item .example {
+    color: #1f2937;
+    font-style: italic;
+}
+
+/* Gerunds & Infinitives Specific Styles */
+.overview-card.gerund {
+    border-left: 5px solid #059669;
+}
+
+.overview-card.infinitive {
+    border-left: 5px solid #dc2626;
+}
+
+.overview-card.bare {
+    border-left: 5px solid #7c3aed;
+}
+
+.overview-card .form {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #374151;
+    background: #f3f4f6;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+}
+
+.gerund-uses,
+.infinitive-uses,
+.bare-infinitive-uses {
+    margin: 2rem 0;
+}
+
+.use-case {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 1rem 0;
+    border-left: 4px solid #6366f1;
+}
+
+.use-case h4 {
+    color: #6366f1;
+    margin-bottom: 1rem;
+}
+
+.use-case .examples {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.use-case .example {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.use-case .translation {
+    color: #059669;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.both-forms {
+    margin: 2rem 0;
+}
+
+.same-meaning,
+.different-meaning {
+    margin: 2rem 0;
+}
+
+.same-meaning h3,
+.different-meaning h3 {
+    color: #6366f1;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+}
+
+.verb-pair {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.verb-pair h4 {
+    color: #6366f1;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.meaning-pair {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 2rem 0;
+    border-top: 4px solid #6366f1;
+}
+
+.meaning-pair h4 {
+    color: #6366f1;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.meaning-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.meaning-item {
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+}
+
+.meaning-item .form {
+    background: #6366f1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-family: 'Courier New', monospace;
+}
+
+.meaning-item .example {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.meaning-item .translation {
+    color: #059669;
+    font-style: italic;
+}
+
+/* Comparatives & Superlatives Specific Styles */
+.comparison-levels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.level-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    border-top: 4px solid #6366f1;
+}
+
+.level-card h3 {
+    color: #6366f1;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.level-card .level-name {
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.level-card .example {
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.level-card .translation {
+    color: #059669;
+    font-style: italic;
+}
+
+.rules-section {
+    margin: 2rem 0;
+}
+
+.rules-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.rules-table th {
+    background: linear-gradient(45deg, #6366f1, #8b5cf6);
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+.rules-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+.rules-table tr:hover {
+    background: #f9fafb;
+}
+
+.irregular-comparatives,
+.irregular-superlatives {
+    margin: 2rem 0;
+}
+
+.irregular-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.irregular-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    border: 2px solid #f59e0b;
+}
+
+.irregular-item .base {
+    color: #dc2626;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.irregular-item .comp {
+    color: #059669;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.irregular-item .translation {
+    color: #6b7280;
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.equality-patterns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.pattern-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    border-left: 5px solid #10b981;
+}
+
+.pattern-card h3 {
+    color: #10b981;
+    font-family: 'Courier New', monospace;
+    background: #f0fdf4;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.pattern-card .example {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.pattern-card .translation {
+    color: #059669;
+    font-style: italic;
+}
+
+.quantity-comparison {
+    margin: 2rem 0;
+}
+
+.quantity-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.quantity-table th {
+    background: #10b981;
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+}
+
+.quantity-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+.special-structures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.structure-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-top: 4px solid #8b5cf6;
+}
+
+.structure-card h4 {
+    color: #8b5cf6;
+    font-family: 'Courier New', monospace;
+    background: #faf5ff;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.structure-card .example {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.structure-card .translation {
+    color: #059669;
+    font-style: italic;
+}
+
+.important-notes {
+    display: grid;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.note-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #ef4444;
+}
+
+.note-item h4 {
+    color: #ef4444;
+    margin-bottom: 1rem;
+}
+
+.note-item .incorrect {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.note-item .correct {
+    color: #059669;
+    font-weight: 500;
+}
+
+.note-item .note {
+    color: #6b7280;
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 480px) {
+    main {
+        margin: 10px;
+        border-radius: 15px;
+    }
+    
+    .lesson-nav {
+        grid-template-columns: 1fr;
+    }
+    
+    nav ul {
+        gap: 15px;
+    }
+    
+    .quiz-button {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .lesson-nav {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 769px) {
+    .lesson-nav {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* Touch optimizations for iOS */
+@media (hover: none) and (pointer: coarse) {
+    .quiz-button:hover {
+        transform: none;
+    }
+    
+    .quiz-button:active {
+        transform: scale(0.95);
+    }
+    
+    .lesson-card:hover {
+        transform: none;
+    }
+    
+    .lesson-card:active {
+        transform: scale(0.98);
+    }
+    
+    nav a:hover {
+        transform: none;
+    }
+    
+    nav a:active {
+        transform: scale(0.95);
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .grammar-table th {
+        background: #000;
+        color: #fff;
+    }
+    
+    .lesson-card {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    
+    main {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .grammar-table td {
+        background: #4a5568;
+        border-color: #718096;
+        color: #e2e8f0;
+    }
+    
+    .example-box {
+        background: #2d3748;
+        border-left-color: #4299e1;
+        color: #e2e8f0;
+    }
+    
+    .vietnamese-note {
+        background: #744210;
+        border-color: #d69e2e;
+        color: #fed7aa;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    header, footer, nav, .quiz-button, .game-container {
+        display: none;
+    }
+    
+    main {
+        box-shadow: none;
+        margin: 0;
+        padding: 20px;
+    }
+}
+
+/* iPhone 15 Pro Max and Touch Device Optimizations */
+@supports (padding: max(0px)) {
+    /* Safe area for iPhone 15 Pro Max */
+    body {
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+    
+    header {
+        padding-top: max(20px, env(safe-area-inset-top) + 10px);
+    }
+    
+    footer {
+        padding-bottom: max(20px, env(safe-area-inset-bottom) + 10px);
+    }
+}
+
+/* Touch-optimized interactions */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Enhanced touch targets for iPhone 15 Pro Max */
+button, .btn, .quiz-button, .word-button, .modal-option, .verb-option, 
+.lesson-card, .game-mode-btn, a[class*="btn"], .touch-target {
+    min-width: 48px;
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+/* Large screen optimizations for iPhone 15 Pro Max (428×926) */
+@media screen and (max-width: 430px) and (max-height: 930px) {
+    html {
+        font-size: 18px; /* Larger base font for better readability */
+    }
+    
+    .lesson-nav, .game-mode-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .lesson-card, .game-mode-btn {
+        padding: 25px;
+        font-size: 1.1em;
+        min-height: 100px;
+    }
+    
+    .quiz-button, .btn {
+        padding: 18px 25px;
+        font-size: 1.1em;
+        min-height: 55px;
+    }
+    
+    .game-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+        font-size: 1.1em;
+    }
+    
+    /* Optimize table display for narrow screens */
+    table {
+        font-size: 0.95em;
+    }
+    
+    th, td {
+        padding: 12px 8px;
+    }
+    
+    /* Better spacing for content */
+    .usage-grid, .verb-form-grid, .answer-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .usage-card, .modal-option, .verb-option {
+        padding: 20px;
+        font-size: 1.05em;
+        min-height: 80px;
+    }
+}
+
+/* Landscape orientation for iPhone 15 Pro Max */
+@media screen and (max-width: 930px) and (max-height: 430px) and (orientation: landscape) {
+    header {
+        padding: 15px 20px;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    main {
+        margin: 20px 0;
+    }
+    
+    .lesson-nav, .game-mode-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .lesson-card, .game-mode-btn {
+        padding: 20px;
+        min-height: 80px;
+    }
+    
+    .game-stats {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 15px 10px;
+    }
+}
+
+/* High DPI displays (Retina) optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Sharper borders and shadows */
+    .lesson-card, .game-mode-btn, .quiz-button, .btn {
+        border: 0.5px solid rgba(255,255,255,0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    /* Enhanced gradients for Retina */
+    .lesson-card {
+        background: linear-gradient(135deg, 
+            #667eea 0%, #667eea 25%, 
+            #764ba2 75%, #764ba2 100%);
+    }
+}
+
+/* Touch feedback animations */
+@keyframes touchFeedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+.touch-feedback:active {
+    animation: touchFeedback 0.1s ease;
+}
+
+button:active, .btn:active, .quiz-button:active, 
+.lesson-card:active, .game-mode-btn:active {
+    animation: touchFeedback 0.1s ease;
+    opacity: 0.8;
+}
+
+/* Scroll behavior optimizations */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Improved form elements for touch */
+input[type="text"], input[type="email"], textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, 
+textarea:focus, select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+}
+
+/* Game-specific touch optimizations */
+.modal-option:active, .verb-option:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+.draggable-word {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* Improved visibility for small text */
+small, .small-text {
+    font-size: max(14px, 0.875em);
+    line-height: 1.4;
+}
+
+/* Better contrast for accessibility */
+@media (prefers-contrast: high) {
+    .lesson-card, .game-mode-btn {
+        border: 3px solid #fff;
+    }
+    
+    .quiz-button, .btn {
+        border: 2px solid #fff;
+    }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #e0e0e0;
+    }
+    
+    .game-container, .stat-card, .example-box {
+        background: #2a2a3e;
+        color: #e0e0e0;
+        border: 1px solid #3a3a5e;
+    }
+    
+    table {
+        background: #2a2a3e;
+        color: #e0e0e0;
+    }
+    
+    th {
+        background: #3a3a5e;
+    }
+    
+    td {
+        border-bottom-color: #3a3a5e;
+    }
+    
+    .input-field {
+        background: #2a2a3e;
+        color: #e0e0e0;
+        border-color: #3a3a5e;
+    }
+    
+    .word-button {
+        background: #2a2a3e;
+        color: #e0e0e0;
+        border-color: #007bff;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    header, footer, nav, .game-controls, .btn, button {
+        display: none !important;
+    }
+    
+    .lesson-card, .example-box, table {
+        break-inside: avoid;
+        border: 1px solid #000;
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* Additional mobile-first responsive improvements */
+@media (max-width: 768px) {
+    /* Larger clickable areas */
+    .lesson-nav {
+        gap: 20px;
+    }
+    
+    .lesson-card {
+        padding: 25px;
+        min-height: 120px;
+    }
+    
+    /* Better text scaling */
+    h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+    h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+    h3 { font-size: clamp(1.2rem, 4vw, 1.5rem); }
+    
+    /* Improved table responsiveness */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Better form layout */
+    .exercise-container {
+        padding: 20px;
+    }
+    
+    .exercise-box {
+        padding: 20px;
+        line-height: 1.8;
+    }
+    
+    /* Optimized game elements */
+    .game-stats {
+        margin: 20px 0;
+    }
+    
+    .answer-grid {
+        gap: 15px;
+    }
+    
+    .modal-option, .verb-option {
+        padding: 20px;
+        min-height: 70px;
+        font-size: 1.1em;
+    }
+}
+
+/* Ultra-wide screen optimizations */
+@media (min-width: 1400px) {
+    .container, main {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .lesson-nav, .game-mode-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .usage-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

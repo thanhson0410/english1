@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chơi Sắp xếp Câu (Phiên bản đầy đủ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .draggable {
+            cursor: move;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+            user-select: none; /* Ngăn chọn văn bản khi kéo */
+        }
+        .draggable:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .dragging {
+            opacity: 0.5;
+            background: #e0e7ff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .correct-answer-item {
+            background-color: #f0fdf4; /* green-50 */
+            border-left: 4px solid #22c55e; /* green-500 */
+        }
+        .correct-answer-item strong {
+            color: #15803d; /* green-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-3xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-600">Trò Chơi Sắp Xếp Câu</h1>
+            <p class="text-gray-600 mt-2">Chọn một chủ đề và sắp xếp các câu theo đúng thứ tự.</p>
+        </header>
+
+        <div class="flex justify-center mb-6">
+            <select id="topic-selector" class="w-full max-w-md p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                <!-- Các chủ đề sẽ được thêm vào đây bằng JS -->
+            </select>
+        </div>
+
+        <main id="game-container" class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 id="game-title" class="text-xl md:text-2xl font-bold mb-6 text-center text-gray-700"></h2>
+            
+            <div id="sortable-list" class="space-y-3">
+                <!-- Các câu sẽ được thêm vào đây bằng JS -->
+            </div>
+
+            <div id="hint-area" class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-lg hidden">
+                <!-- Gợi ý sẽ được thêm vào đây -->
+            </div>
+
+            <div class="text-center mt-8 flex flex-wrap justify-center items-center gap-4">
+                <button id="check-btn" class="px-6 py-2 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition transform hover:scale-105">
+                    Kiểm tra
+                </button>
+                <button id="show-answer-btn" class="px-6 py-2 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition transform hover:scale-105">
+                    Xem Đáp Án
+                </button>
+                <button id="show-hint-btn" class="px-6 py-2 bg-yellow-500 text-white font-bold rounded-lg shadow-md hover:bg-yellow-600 transition transform hover:scale-105">
+                    Xem Gợi Ý
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal hiển thị kết quả -->
+    <div id="result-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl w-full transform transition-all scale-95">
+            <h2 id="modal-title" class="text-2xl md:text-3xl font-bold text-center mb-4"></h2>
+            <div id="modal-content" class="text-center text-gray-700 mb-6"></div>
+            <div class="text-center">
+                <button id="close-modal-btn" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gameData = {
+            zoo: {
+                title: "1. Sở thú (Zoo)",
+                items: [
+                    { en: "Symbol of privilege and wealth", vi: "Biểu tượng của đặc quyền và sự giàu có" },
+                    { en: "Opening the door for everyone", vi: "Mở cửa cho mọi người" },
+                    { en: "Away from amusement towards instruction", vi: "Từ giải trí hướng đến giáo dục" },
+                    { en: "Away from enclosure towards greater freedom", vi: "Từ việc nhốt động vật trong chuồng để hướng đến sự tự do lớn hơn" },
+                    { en: "A different set of values", vi: "Một tập hợp giá trị mới" },
+                    { en: "A new mission of conservation", vi: "Một sứ mệnh bảo tồn mới" },
+                    { en: "A modern day alternative", vi: "Một giải pháp thay thế cho cuộc sống hiện đại" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Sở thú là <strong>biểu tượng</strong> (symbol) <strong>mở ra</strong> (opening) sự <strong>giải trí</strong> (amusement) và sự <strong>tự do</strong> (freedom). Và <strong>giá trị</strong> (values) của người quản lý là <strong>nhiệm vụ</strong> (mission) <strong>hiện đại</strong> (modern) hóa sở thú."
+            },
+            music: {
+                title: "2. Âm nhạc (Music)",
+                items: [
+                    { en: "a physically demanding activity", vi: "Hoạt động đòi hỏi thể chất" },
+                    { en: "a good way to boost your memory", vi: "Một cách tốt để tăng cường trí nhớ" },
+                    { en: "a great opportunity to broaden your social circle", vi: "Cơ hội tuyệt vời để mở rộng mối quan hệ xã hội" },
+                    { en: "a way to learn discipline and the importance of routine", vi: "Một cách để học tính kỷ luật và tầm quan trọng của thói quen" },
+                    { en: "a creative outlet for expressing emotions", vi: "Một lối thoát sáng tạo để thể hiện cảm xúc" },
+                    { en: "enhanced sensitivity to other people's feelings", vi: "Tăng cường sự nhạy cảm với cảm xúc của người khác" },
+                    { en: "develop a greater sense of well-being", vi: "Tăng cường cảm giác hạnh phúc và khỏe mạnh tuyệt vời" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Âm nhạc là <strong>hoạt động</strong> (activity) tăng cường <strong>trí nhớ</strong> (memory), nó là <strong>cơ hội</strong> (opportunity) để chúng ta <strong>học hỏi</strong> (learn discipline), cảm nhận <strong>cảm xúc</strong> (emotions) của <strong>người khác</strong> (other's feelings) và thấy <strong>hạnh phúc</strong> (well-being) hơn."
+            },
+            antarctica: {
+                title: "3. Nam Cực (Antarctica)",
+                items: [
+                    { en: "who is in charge?", vi: "Ai là người chịu trách nhiệm" },
+                    { en: "First step on the ice", vi: "Bước đầu tiên trên băng" },
+                    { en: "Where is the end of the Earth?", vi: "Đâu là điểm tận cùng của Trái đất?" },
+                    { en: "hidden geography", vi: "Địa lý ẩn giấu" },
+                    { en: "race to the Pole", vi: "Cuộc đua đến cực" },
+                    { en: "less effort needed", vi: "Cần ít nỗ lực hơn" },
+                    { en: "why is it so cold?", vi: "Tại sao lại lạnh như vậy?" }
+                ],
+                hint: "<strong>Gợi ý:</strong> <strong>Ai là người</strong> (who is in charge) <strong>đầu tiên</strong> (first step) đặt chân tới vùng đất <strong>tận cùng của thế giới</strong> (end of the Earth), các vùng đất <strong>ẩn giấu</strong> (hidden geography) là <strong>cuộc đua</strong> (race) không hề <strong>dễ dàng</strong> (less effort) tại vùng <strong>lạnh</strong> (cold) nhất này."
+            },
+            eatingInChina: {
+                title: "4. Ăn uống ở Trung Quốc (Eating in China)",
+                items: [
+                    { en: "the origins of chinese food", vi: "Nguồn gốc của ẩm thực Trung Quốc" },
+                    { en: "the influence of philosophy", vi: "Ảnh hưởng của triết học" },
+                    { en: "regional variations", vi: "Sự đa dạng theo vùng miền" },
+                    { en: "cooking methods", vi: "Phương pháp nấu ăn" },
+                    { en: "The style of eating", vi: "Phong cách ăn uống" },
+                    { en: "Changes in Chinese diets", vi: "Những thay đổi trong chế độ ăn uống của người Trung Quốc" },
+                    { en: "effects of a changing diet", vi: "Tác động của chế độ ăn uống thay đổi" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Đồ ăn Trung Quốc (origins) chịu <strong>ảnh hưởng</strong> (influence) của <strong>vùng miền</strong> (regional); chính điều này đã tạo ra nhiều <strong>phương pháp</strong> (methods) và <strong>phong cách</strong> (style) nấu ăn khác nhau trong (Changes in) việc tạo <strong>hiệu ứng</strong> (effects) ẩm thực."
+            },
+            doggettsCoat: {
+                title: "5. Doggett's coat and badge",
+                items: [
+                    { en: "The easiest way to travel", vi: "Cách di chuyển dễ dàng nhất" },
+                    { en: "Result of a lucky escape", vi: "Kết quả của một lần may mắn thoát nạn" },
+                    { en: "Origins of what the winner receives", vi: "Nguồn gốc phần thưởng của người chiến thắng" },
+                    { en: "a need for change", vi: "Nhu cầu thay đổi" },
+                    { en: "earning a reputation", vi: "Xây dựng được danh tiếng" },
+                    { en: "generations of champions", vi: "Nhiều thế hệ vô địch" },
+                    { en: "not in it for the money", vi: "Không vì tiền" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Doggett đã tìm ra <strong>con đường</strong> (easiest way) dễ nhất để <strong>cứu vớt</strong> (escape) bản thân mình và đi tới nhiều chiến thắng (winner/origins). Chính điều này đã <strong>thay đổi</strong> (change) cuộc sống của anh ta, anh đã <strong>kiếm được danh tiếng</strong> (earning a reputation) qua nhiều <strong>thế hệ vô địch</strong> (generations of champions) và <strong>không phải vì tiền</strong> (not in it for the money)."
+            },
+            consumerAge: {
+                title: "6. Thời đại tiêu dùng (Consumer age)",
+                items: [
+                    { en: "making things last longer", vi: "Làm cho mọi thứ bền hơn" },
+                    { en: "a temporary experiment", vi: "Một thử nghiệm tạm thời" },
+                    { en: "the reason of secrecy", vi: "Lý do ẩn giấu" },
+                    { en: "still relevant to our times", vi: "Vẫn phù hợp với thời đại của chúng ta" },
+                    { en: "the difficulty of being generous", vi: "Khó khăn trong việc hào phóng" },
+                    { en: "Reason for reaching a compromise", vi: "Lý do để đạt được sự thỏa hiệp" },
+                    { en: "important lessons for all of us", vi: "Những bài học quan trọng cho tất cả chúng ta" }
+                ],
+                hint: "<strong>Gợi ý Mnemonic:</strong> M.A.T.S.T.R.I (<strong>M</strong>aking – <strong>A</strong> temporary – <strong>T</strong>he <strong>R</strong>eason of secrecy – <strong>S</strong>till – <strong>T</strong>he difficulty – <strong>R</strong>eason for...compromise – <strong>I</strong>mportant)."
+            },
+            coffee: {
+                title: "7. Cà phê (Coffee)",
+                items: [
+                    { en: "The custom of coffee drinking begins to spread", vi: "Phong tục uống café bắt đầu lan rộng" },
+                    { en: "coffee encourages art of conversation", vi: "Cà phê khuyến khích nghệ thuật trò chuyện" },
+                    { en: "a habit that has become a big economy", vi: "Một thói quen đã trở thành một nền kinh tế lớn" },
+                    { en: "problems of coffee economy", vi: "Các vấn đề trong nền kinh tế café" },
+                    { en: "a remedy of unjust revenue distribution", vi: "Một biện pháp khắc phục tình trạng phân phối doanh thu không công bằng" },
+                    { en: "health risks versus health benefits debate", vi: "Tranh luận về rủi ro sức khỏe so với lợi ích sức khỏe" },
+                    { en: "the ancient origin of coffee", vi: "Nguồn gốc cổ xưa của café" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Uống cà phê (custom...spread) là một <strong>nghệ thuật</strong> (art) và là <strong>thói quen</strong> (habit). Tuy nhiên, các <strong>vấn đề</strong> (problems) gây tranh cãi của cà phê là sự <strong>phân phối</strong> (remedy/distribution) không công bằng, gây ra vấn đề về <strong>sức khỏe</strong> (health) và <strong>nguồn gốc</strong> (origin) của nó."
+            },
+            childrenExercise: {
+                title: "8. Trẻ em và vận động (Children and exercise)",
+                items: [
+                    { en: "Factors contributing to inactivity", vi: "Các yếu tố góp phần gây ra tình trạng ít vận động" },
+                    { en: "The situation have the potential of being worst", vi: "Tình hình có khả năng trở nên tồi tệ hơn" },
+                    { en: "The success of simple idea", vi: "Sự thành công của ý tưởng đơn giản" },
+                    { en: "The wider effects of regular activity", vi: "Những tác động rộng hơn của hoạt động thường xuyên" },
+                    { en: "Ways in which environment can influence behaviour", vi: "Những cách mà môi trường có thể ảnh hưởng đến hành vi" },
+                    { en: "A design for exercise and for study", vi: "Một thiết kế để tập thể dục và học tập" },
+                    { en: "Achieving the right balance", vi: "Đạt được sự cân bằng phù hợp" }
+                ],
+                hint: "<strong>Gợi ý Mnemonic:</strong> F.T.T.T.W.A.A (<strong>F</strong>actors – <strong>T</strong>he situation...worst – <strong>T</strong>he success – <strong>T</strong>he wider – <strong>W</strong>ays – <strong>A</strong> design – <strong>A</strong>chieving…Balance)."
+            },
+            tulips_v1: {
+                title: "9. Hoa Tulip (P.bản 1)",
+                items: [
+                    { en: "The economy during the Golden Age", vi: "Nền kinh tế trong thời kỳ hoàng kim" },
+                    { en: "Coming into fashion", vi: "Trở nên thịnh hành" },
+                    { en: "An object of trade", vi: "Đối tượng thương mại" },
+                    { en: "Different types of tulip", vi: "Các loại hoa tulip khác nhau" },
+                    { en: "Trade mechanics", vi: "Cơ chế thương mại" },
+                    { en: "Trade across Europe", vi: "Thương mại khắp châu Âu" },
+                    { en: "An unexpected turn of events", vi: "Một diễn biến bất ngờ" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Thời kỳ <strong>hoàng kim</strong> (golden age) tạo nên <strong>thịnh hành</strong> (fashion) là <strong>đối tượng buôn bán</strong> (object of trade) các <strong>loại</strong> hoa tuy-líp (types of tulip) và <strong>cơ chế</strong> (mechanics) qua <strong>Châu Âu</strong> (Europe), đây là <strong>diễn biến</strong> (events) không mong đợi."
+            },
+            tulips_v2: {
+                title: "9. Hoa Tulip (P.bản 2)",
+                items: [
+                    { en: "Trade across Europe", vi: "Thương mại trên khắp Châu Âu" },
+                    { en: "Come into fashion", vi: "Trở nên thịnh hành" },
+                    { en: "An object of trade", vi: "Một đối tượng giao dịch" },
+                    { en: "Different types of tulip", vi: "Các loại hoa tulip khác nhau" },
+                    { en: "Trade mechanics", vi: "Cơ chế giao dịch" },
+                    { en: "Stock market and Economics", vi: "Thị trường chứng khoán và kinh tế" },
+                    { en: "An unexpected turn of events", vi: "Một diễn biến bất ngờ" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Ở <strong>Châu Âu</strong> (Trade across Europe), hoa Tulip đã <strong>trở nên thịnh hành</strong> (come into fashion) và là <strong>đối tượng được mua bán</strong> (object of trade). Chúng có rất <strong>nhiều loại khác nhau</strong> (different types). Người ta đã xây dựng ra cả một <strong>cơ chế mua bán</strong> (Trade mechanics) dựa trên <strong>thị trường chứng khoán</strong> (stock and economics). Tuy nhiên một <strong>diễn biến bất ngờ</strong> (an unexpected turn of events) đã gây sụp đổ thị trường."
+            },
+            hotel_v1: {
+                title: "10. Khách sạn (P.bản 1)",
+                items: [
+                    { en: "a sensible financial choice", vi: "Lựa chọn tài chính hợp lý" },
+                    { en: "the price of convenience may be high", vi: "Giá của sự tiện lợi có thể cao" },
+                    { en: "the importance of planning in advance", vi: "Tầm quan trọng của sự chuẩn bị trước" },
+                    { en: "the impact of lack of freedom", vi: "Tác động của việc thiếu tự do" },
+                    { en: "the benefits of living with less", vi: "Lợi ích của việc sống tối giản" },
+                    { en: "the advantages of having your own space", vi: "Lợi ích của việc có không gian riêng" },
+                    { en: "A competitive business", vi: "Kinh doanh cạnh tranh" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Ở Doha, khách sạn có nguồn <strong>tài chính</strong> (financial) dồi dào, <strong>giá cũng cao</strong> (price is high), và <strong>quan trọng</strong> (importance) là toàn 5 sao, khi tôi ở đó, tôi có thể ăn buffet <strong>tự do</strong> (freedom), tôi <strong>sống tối giản</strong> (living with less) trong một phòng 1 người, có <strong>không gian riêng</strong> (own space) như một <strong>doanh nhân</strong> (business)."
+            },
+            hotel_v2: {
+                title: "10. Khách sạn (P.bản 2)",
+                items: [
+                    { en: "A Financial Viable Solution", vi: "Một giải pháp khả thi về mặt tài chính" },
+                    { en: "the price of convenience is high", vi: "Cái giá cao của sự tiện lợi" },
+                    { en: "the importance of planning in advance", vi: "Tầm quan trọng của việc lập kế hoạch trước" },
+                    { en: "the impact of losing freedom", vi: "Tác động của việc mất đi sự tự do" },
+                    { en: "the benefits of living less", vi: "Lợi ích của việc sống tối giản" },
+                    { en: "The Challenges that Come with a New Perspective", vi: "Những thách thức đi kèm với góc nhìn mới" },
+                    { en: "A competitive business", vi: "Kinh doanh cạnh tranh" }
+                ],
+                 hint: "<strong>Gợi ý:</strong> Khách sạn là một <strong>giải pháp tài chính</strong> (Financial...Solution) dù <strong>giá tiện lợi cao</strong> (price...high). <strong>Tầm quan trọng của việc lập kế hoạch</strong> (importance of planning) giúp giảm <strong>tác động của việc mất tự do</strong> (impact of losing freedom) và mang lại <strong>lợi ích của việc sống tối giản</strong> (benefits of living less), dù có <strong>thách thức mới</strong> (Challenges...New Perspective) trong ngành <strong>kinh doanh cạnh tranh</strong> (competitive business)."
+            },
+            earlyAustralia_v1: {
+                title: "11. Nước Úc (P.bản 1)",
+                items: [
+                    { en: "An alternative history of settlement", vi: "Lịch sử thay thế về sự định cư" },
+                    { en: "Natural barrier to resettlement", vi: "Rào cản tự nhiên đối với tái định cư" },
+                    { en: "Technology helps uncover the ocean's secret", vi: "Công nghệ giúp khám phá bí mật của đại dương" },
+                    { en: "A Journey made by stages", vi: "Hành trình được thực hiện theo từng giai đoạn" },
+                    { en: "A new evidence that leads to speculation", vi: "Một bằng chứng mới dẫn đến suy đoán" },
+                    { en: "Lack of knowledge and skills", vi: "Thiếu kiến thức và kỹ năng" },
+                    { en: "Determination of the explorers through the ages", vi: "Sự quyết tâm của những nhà thám hiểm qua các thời đại" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Nước Úc có <strong>lịch sử</strong> (history) gần đây, nơi này <strong>tự nhiên</strong> (natural barrier) không thuận lợi cho việc định cư. Tuy nhiên hiện nay, <strong>công nghệ</strong> (technology) đã phát triển nên tạo nên các <strong>cuộc hành trình</strong> (journey) <strong>mới</strong> (new evidence) cho con người, nâng cao <strong>kiến thức</strong> (knowledge) cho các <strong>nhà thám hiểm</strong> (explorers)."
+            },
+            earlyAustralia_v2: {
+                title: "11. Nước Úc (P.bản 2)",
+                items: [
+                    { en: "An alternative history of settlement", vi: "Lịch sử thay thế về sự định cư" },
+                    { en: "New evidence leads to speculation", vi: "Bằng chứng mới dẫn đến sự suy đoán" },
+                    { en: "Technology helps uncover the sea's secret", vi: "Công nghệ giúp khám phá bí mật của biển cả" },
+                    { en: "A Journey made by stages", vi: "Hành trình được thực hiện theo từng giai đoạn" },
+                    { en: "No precise figures available", vi: "Không có số liệu chính xác" },
+                    { en: "Lack of knowledge and skills", vi: "Thiếu kiến thức và kỹ năng" },
+                    { en: "Determination of the explorers through the ages", vi: "Sự quyết tâm của những nhà thám hiểm qua các thời đại" }
+                ],
+                 hint: "<strong>Gợi ý:</strong> <strong>Lịch sử</strong> (history) định cư có <strong>bằng chứng mới</strong> (New evidence). <strong>Công nghệ</strong> (Technology) giúp khám phá <strong>hành trình</strong> (Journey) của họ. Dù <strong>không có số liệu</strong> (No precise figures) chính xác và họ <strong>thiếu kiến thức</strong> (Lack of knowledge), nhưng <strong>sự quyết tâm</strong> (Determination) của họ là rất lớn."
+            },
+            meatlessDiet_v1: {
+                title: "12. Ăn chay (P.bản 1)",
+                items: [
+                    { en: "types of vegetarian", vi: "Các kiểu ăn chay" },
+                    { en: "various explanations", vi: "Nhiều giải thích khác nhau" },
+                    { en: "possible to happen", vi: "Có thể xảy ra" },
+                    { en: "farming factory - it is a harmful thing", vi: "Chăn nuôi công nghiệp - đó là một điều có hại" },
+                    { en: "respect the life", vi: "Tôn trọng sự sống" },
+                    { en: "health gets better with diet", vi: "Sức khỏe tốt hơn nhờ chế độ ăn uống" },
+                    { en: "our responsibilities for global", vi: "Trách nhiệm của chúng ta đối với toàn cầu" }
+                ],
+                hint: "<strong>Gợi ý Mnemonic:</strong> T.V.P.F.R.H.O (<strong>T</strong>ypes - <strong>V</strong>arious - <strong>P</strong>ossible - <strong>F</strong>arming - <strong>R</strong>espect - <strong>H</strong>ealth - <strong>O</strong>ur responsibilities)."
+            },
+            meatlessDiet_v2: {
+                title: "12. Ăn chay (P.bản 2)",
+                items: [
+                    { en: "types of vegetarian meals", vi: "Các kiểu ăn chay" },
+                    { en: "various explanations", vi: "Nhiều giải thích khác nhau" },
+                    { en: "Possible global food crisis", vi: "Khủng hoảng lương thực toàn cầu có thể xảy ra" },
+                    { en: "factory farming", vi: "Chăn nuôi công nghiệp" },
+                    { en: "Our global responsibility", vi: "Trách nhiệm toàn cầu của chúng ta" },
+                    { en: "Health benefits", vi: "Lợi ích sức khỏe" },
+                    { en: "Respect to life", vi: "Tôn trọng sự sống" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Có nhiều <strong>kiểu</strong> (types) và <strong>giải thích</strong> (explanations) về ăn chay. Nó có thể giải quyết <strong>khủng hoảng lương thực</strong> (food crisis) do <strong>chăn nuôi công nghiệp</strong> (factory farming). Đó là <strong>trách nhiệm toàn cầu</strong> (global responsibility) mang lại <strong>lợi ích sức khỏe</strong> (Health benefits) và thể hiện <strong>sự tôn trọng sự sống</strong> (Respect to life)."
+            },
+            charlesDickens: {
+                title: "13. Charles Dickens",
+                items: [
+                    { en: "Dickens for our time", vi: "Dicken với thời đại của chúng ta" },
+                    { en: "difficulties for modern readers", vi: "Khó khăn cho độc giả hiện đại" },
+                    { en: "keeping the readers guessing", vi: "Giữ suy đoán của người đọc" },
+                    { en: "the influence of media", vi: "Ảnh hưởng của truyền thông" },
+                    { en: "dicken's early success", vi: "Thành công ban đầu của dicken" },
+                    { en: "trying to protect his property", vi: "Cố gắng bảo vệ tài sản của mình" },
+                    { en: "bring the books to life", vi: "Mang những cuốn sách vào cuộc sống" }
+                ],
+                hint: "<strong>Gợi ý:</strong> Charlies <strong>Dicken</strong> (dickens) gặp <strong>khó khăn</strong> (difficulties) trong việc <strong>đoán</strong> (guessing) <strong>truyền thông</strong> (media). Ông ấy đã <strong>thành công</strong> (success) trong việc <strong>bảo vệ</strong> (protect) <strong>sách</strong> (books) của ông ấy."
+            },
+            tinyHouse: {
+                title: "14. Nhà tí hon (Tiny house)",
+                items: [
+                    { en: "live in a small scale", vi: "Sống ở quy mô nhỏ" },
+                    { en: "motivated by economics", vi: "Được thúc đẩy bởi kinh tế" },
+                    { en: "advantage", vi: "Lợi thế" },
+                    { en: "homes too big for comfort", vi: "Nhà quá lớn để thoải mái" },
+                    { en: "sharing skills and knowledge", vi: "Chia sẻ kỹ năng và kiến thức" },
+                    { en: "making a smaller impact", vi: "Tạo tác động nhỏ hơn" },
+                    { en: "the last change", vi: "Thay đổi cuối cùng" }
+                ],
+                hint: "<strong>Gợi ý:</strong> <strong>Sống</strong> (live) ở ngôi nhà nhỏ (tiny house) <strong>thúc đẩy nền kinh tế</strong> (economics) và có <strong>thuận lợi</strong> (advantage) hơn so với ngôi <strong>nhà lớn</strong> (homes big), nơi mà phải <strong>chia sẻ kĩ năng và kiến thức</strong> (skills & knowledge) để tạo <strong>ảnh hưởng</strong> (impact) dẫn tới <strong>thay đổi</strong> (change)."
+            },
+            currency: {
+                title: "15. Tiền tệ (Currency)",
+                items: [
+                    { en: "an unsatisfactory", vi: "Không hài lòng" },
+                    { en: "a soft currency is", vi: "Đồng tiền yếu" },
+                    { en: "an old currency used today", vi: "Tiền cổ vẫn được sử dụng ngày nay" },
+                    { en: "the creation", vi: "Sự sáng tạo" },
+                    { en: "araise", vi: "Nổi lên" },
+                    { en: "the politics", vi: "Chính trị" },
+                    { en: "international", vi: "Quốc tế" }
+                ],
+                hint: "<strong>Gợi ý:</strong> <strong>Không hài lòng</strong> (unsatisfactory) về <strong>tiền yếu</strong> (soft currency) và <strong>tiền cổ</strong> (old currency) nên cần có sự <strong>sáng tạo</strong> (creation) để <strong>dấy lên</strong> (araise) áp lực với <strong>chính trị</strong> (politics) <strong>quốc tế</strong> (international)."
+            },
+            caving: {
+                title: "16. Thám hiểm hang động (Caving)",
+                items: [
+                    { en: "What is caving?", vi: "Hang động là gì" },
+                    { en: "The growth", vi: "Sự phát triển" },
+                    { en: "The wide", vi: "Chiều rộng" },
+                    { en: "Man becomes", vi: "Con người trở thành" },
+                    { en: "What to take", vi: "Cần mang theo những gì" },
+                    { en: "Staying safe", vi: "Giữ an toàn" },
+                    { en: "What to do", vi: "Phải làm gì" },
+                ],
+                hint: "<strong>Gợi ý:</strong> <strong>Hang động</strong> (caving) <strong>phát triển</strong> (growth) <strong>chiều rộng</strong> (wide) làm cho <strong>con người</strong> (man) phải nghĩ <strong>cách mang theo</strong> (what to take) sự <strong>an toàn</strong> (safe) và <strong>cách làm</strong> (what to do) để có niềm vui."
+            }
+        };
+
+        const topicSelector = document.getElementById('topic-selector');
+        const sortableList = document.getElementById('sortable-list');
+        const gameTitle = document.getElementById('game-title');
+        const checkBtn = document.getElementById('check-btn');
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const showHintBtn = document.getElementById('show-hint-btn');
+        const hintArea = document.getElementById('hint-area');
+        const modal = document.getElementById('result-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        let draggedElement = null;
+
+        function populateTopics() {
+            for (const key in gameData) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = gameData[key].title;
+                topicSelector.appendChild(option);
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function initGame(topicKey) {
+            const data = gameData[topicKey];
+            gameTitle.textContent = data.title;
+            hintArea.innerHTML = data.hint;
+            hintArea.classList.add('hidden');
+
+            sortableList.innerHTML = '';
+            const itemsToDisplay = data.items.slice(0, 7);
+            const shuffledItems = shuffleArray([...itemsToDisplay]);
+
+            shuffledItems.forEach((item) => {
+                const div = document.createElement('div');
+                div.innerHTML = `<span class="font-semibold">${item.en}</span>`;
+                div.setAttribute('draggable', 'true');
+                div.dataset.id = item.en;
+                div.classList.add('draggable', 'p-3', 'bg-white', 'rounded-lg', 'shadow', 'border', 'border-gray-200');
+                sortableList.appendChild(div);
+            });
+            
+            addDragAndDropListeners();
+        }
+
+        function addDragAndDropListeners() {
+            const draggables = sortableList.querySelectorAll('.draggable');
+            
+            draggables.forEach(draggable => {
+                // Mouse Events
+                draggable.addEventListener('dragstart', handleDragStart);
+                draggable.addEventListener('dragend', handleDragEnd);
+
+                // Touch Events
+                draggable.addEventListener('touchstart', handleTouchStart, { passive: false });
+                draggable.addEventListener('touchmove', handleTouchMove, { passive: false });
+                draggable.addEventListener('touchend', handleTouchEnd);
+            });
+
+            // Drop Listeners (for mouse)
+            sortableList.addEventListener('dragover', handleDragOver);
+        }
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(sortableList, e.clientY);
+            if (draggedElement) {
+                if (afterElement == null) {
+                    sortableList.appendChild(draggedElement);
+                } else {
+                    sortableList.insertBefore(draggedElement, afterElement);
+                }
+            }
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            draggedElement = this;
+            this.classList.add('dragging');
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!draggedElement) return;
+            const touch = e.touches[0];
+            const afterElement = getDragAfterElement(sortableList, touch.clientY);
+            if (afterElement == null) {
+                sortableList.appendChild(draggedElement);
+            } else {
+                sortableList.insertBefore(draggedElement, afterElement);
+            }
+        }
+
+        function handleTouchEnd() {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+            }
+            draggedElement = null;
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        function showModal(title, content, isSuccess) {
+            modalTitle.textContent = title;
+            modalContent.innerHTML = content;
+            modalTitle.className = 'text-2xl md:text-3xl font-bold text-center mb-4 ';
+            modalTitle.classList.add(isSuccess ? 'text-green-600' : 'text-red-600');
+            modal.classList.remove('hidden');
+            setTimeout(()=> modal.querySelector('div').classList.remove('scale-95'), 10);
+        }
+
+        checkBtn.addEventListener('click', () => {
+            const currentTopicKey = topicSelector.value;
+            const correctOrder = gameData[currentTopicKey].items.slice(0, 7).map(item => item.en);
+            const userOrder = [...sortableList.querySelectorAll('.draggable')].map(el => el.dataset.id);
+
+            if (JSON.stringify(correctOrder) === JSON.stringify(userOrder)) {
+                showModal('🎉 Chúc Mừng! Bạn đã sắp xếp đúng!', 'Tuyệt vời! Bạn đã nắm vững thứ tự rồi đó.', true);
+            } else {
+                showModal('🤔 Chưa đúng lắm!', 'Thứ tự của bạn chưa chính xác. Hãy thử lại hoặc xem đáp án nhé!', false);
+            }
+        });
+
+        showAnswerBtn.addEventListener('click', () => {
+            const currentTopicKey = topicSelector.value;
+            sortableList.innerHTML = '';
+            const correctItems = gameData[currentTopicKey].items.slice(0, 7);
+            correctItems.forEach(item => {
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${item.en}</strong><br><span class="text-sm text-gray-600 italic">${item.vi}</span>`;
+                div.classList.add('p-3', 'rounded-lg', 'correct-answer-item');
+                sortableList.appendChild(div);
+            });
+            hintArea.classList.remove('hidden');
+        });
+
+        showHintBtn.addEventListener('click', () => {
+            hintArea.classList.toggle('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(()=> modal.classList.add('hidden'), 200);
+        });
+        
+        topicSelector.addEventListener('change', (e) => {
+            initGame(e.target.value);
+        });
+
+        // Khởi tạo game lần đầu
+        window.onload = () => {
+            populateTopics();
+            initGame(topicSelector.value);
+        };
+    </script>
+</body>
+</html>

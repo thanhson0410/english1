@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Builder</title>
+    <link rel="stylesheet" href="../style.css">
+    <script>
+        const sentences = [
+            {words: ["She", "to", "goes", "school", "every", "day"], answer: "She goes to school every day"},
+            {words: ["They", "not", "like", "do", "coffee"], answer: "They do not like coffee"},
+            {words: ["Does", "he", "work", "here"], answer: "Does he work here"}
+        ];
+        let idx = 0, correct = 0, selected = [];
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+        function showSentence() {
+            if (idx >= sentences.length) {
+                document.getElementById('main').innerHTML = `<h3>Your score: ${correct}/${sentences.length}</h3>`;
+                return;
+            }
+            selected = [];
+            const s = sentences[idx];
+            const words = [...s.words];
+            shuffle(words);
+            document.getElementById('words').innerHTML = words.map((w,i) => `<button onclick='selectWord(this)'>${w}</button>`).join(' ');
+            document.getElementById('result').textContent = '';
+            document.getElementById('built').textContent = '';
+        }
+        function selectWord(btn) {
+            selected.push(btn.textContent);
+            btn.disabled = true;
+            document.getElementById('built').textContent = selected.join(' ');
+            if (selected.length === sentences[idx].words.length) {
+                check();
+            }
+        }
+        function check() {
+            const user = selected.join(' ');
+            if (user === sentences[idx].answer) {
+                correct++;
+                document.getElementById('result').textContent = 'Correct!';
+            } else {
+                document.getElementById('result').textContent = 'Try again!';
+            }
+            setTimeout(() => {
+                idx++;
+                showSentence();
+            }, 1000);
+        }
+        window.onload = showSentence;
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Sentence Builder</h1>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="games.html">Grammar Games</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main">
+        <h2>Build the correct sentence</h2>
+        <div id="words"></div>
+        <div id="built" style="margin:10px 0; font-weight:bold;"></div>
+        <div id="result" style="color:green;"></div>
+    </main>
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery</p>
+    </footer>
+</body>
+</html>

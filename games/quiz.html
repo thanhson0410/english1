@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Quiz - Trắc Nghiệm Ngữ Pháp</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .question-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #2d6cdf;
+        }
+        .timer {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .explanation {
+            background: #e8f4f8;
+            border-left: 4px solid #2d6cdf;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        .explanation.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Grammar Quiz - Trắc Nghiệm Ngữ Pháp</h1>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="games.html">Grammar Games</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="quiz-start">
+            <div class="game-container">
+                <h2>🧠 Kiểm Tra Kiến Thức Ngữ Pháp</h2>
+                <p>Bài quiz gồm 15 câu hỏi về các chủ đề ngữ pháp cơ bản đến nâng cao. Mỗi câu có 30 giây để trả lời.</p>
+                <div style="text-align: center;">
+                    <button onclick="startQuiz()" class="quiz-button">Bắt Đầu Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-area" style="display: none;">
+            <div class="question-counter">
+                <span>Câu <span id="current-q">1</span> / <span id="total-q">15</span></span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+            </div>
+            
+            <div class="timer" id="timer">⏰ Thời gian: 30s</div>
+            
+            <div class="question-card">
+                <h3 id="question"></h3>
+                <div id="options"></div>
+                <div id="explanation" class="explanation"></div>
+            </div>
+            
+            <div class="score-display">
+                <span>Điểm: <span id="score">0</span> / <span id="max-score">15</span></span>
+            </div>
+        </div>
+
+        <div id="final-results" style="display: none;">
+            <div class="game-container">
+                <h2>🎉 Kết Quả Quiz</h2>
+                <div class="score-display">
+                    <h3>Điểm Của Bạn: <span id="final-score"></span></h3>
+                    <div class="star-rating" id="star-rating"></div>
+                </div>
+                <div id="performance-analysis"></div>
+                <div id="achievements"></div>
+                <button onclick="restartQuiz()" class="quiz-button">Làm Lại Quiz</button>
+                <a href="../grammar-lessons/lessons.html" class="quiz-button">Ôn Tập Lý Thuyết</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                question: "She _____ to school every day.",
+                options: ["go", "goes", "going", "gone"],
+                correct: 1,
+                explanation: "Với chủ ngữ 'she' (số ít, ngôi thứ 3), động từ phải thêm 's/es'. Present Simple: S + V(s/es)",
+                topic: "Present Simple"
+            },
+            {
+                question: "They _____ not like coffee.",
+                options: ["do", "does", "did", "doing"],
+                correct: 0,
+                explanation: "Với chủ ngữ 'they' (số nhiều), dùng 'do' cho câu phủ định. They do not = They don't",
+                topic: "Present Simple"
+            },
+            {
+                question: "_____ he work here?",
+                options: ["Do", "Does", "Is", "Did"],
+                correct: 1,
+                explanation: "Với chủ ngữ 'he' (số ít, ngôi thứ 3), dùng 'Does' cho câu hỏi trong thì hiện tại đơn",
+                topic: "Present Simple"
+            },
+            {
+                question: "I _____ a book yesterday.",
+                options: ["read", "reads", "reading", "will read"],
+                correct: 0,
+                explanation: "'Yesterday' là dấu hiệu của thì quá khứ đơn. 'Read' có dạng quá khứ giống hiện tại nhưng phát âm khác",
+                topic: "Past Simple"
+            },
+            {
+                question: "She _____ cooking when I arrived.",
+                options: ["cook", "cooks", "was cooking", "cooked"],
+                correct: 2,
+                explanation: "Hành động đang diễn ra (was cooking) khi hành động khác xảy ra (arrived). Past Continuous + Past Simple",
+                topic: "Past Continuous"
+            },
+            {
+                question: "I _____ to London next week.",
+                options: ["go", "went", "will go", "going"],
+                correct: 2,
+                explanation: "'Next week' là dấu hiệu tương lai. Dùng 'will + V' để diễn tả kế hoạch tương lai",
+                topic: "Future Simple"
+            },
+            {
+                question: "You _____ speak louder. I can't hear you.",
+                options: ["should", "would", "could", "might"],
+                correct: 0,
+                explanation: "'Should' dùng để đưa ra lời khuyên. 'Bạn nên nói to hơn'",
+                topic: "Modal Verbs"
+            },
+            {
+                question: "This house _____ built in 1990.",
+                options: ["is", "was", "has", "have"],
+                correct: 1,
+                explanation: "Câu bị động ở quá khứ: S + was/were + V3. 'Built' là quá khứ phân từ của 'build'",
+                topic: "Passive Voice"
+            },
+            {
+                question: "If I _____ rich, I would travel the world.",
+                options: ["am", "was", "were", "will be"],
+                correct: 2,
+                explanation: "Câu điều kiện loại 2: If + S + were/V2, S + would + V. Dùng 'were' cho tất cả chủ ngữ",
+                topic: "Conditionals"
+            },
+            {
+                question: "The book _____ you gave me is very interesting.",
+                options: ["who", "which", "where", "when"],
+                correct: 1,
+                explanation: "'Which' dùng để thay thế cho danh từ chỉ vật (the book) trong mệnh đề quan hệ",
+                topic: "Relative Clauses"
+            },
+            {
+                question: "I have _____ money left.",
+                options: ["few", "little", "a few", "a little"],
+                correct: 3,
+                explanation: "'Money' là danh từ không đếm được, dùng 'a little' (một ít) hoặc 'little' (rất ít)",
+                topic: "Quantifiers"
+            },
+            {
+                question: "She is good _____ mathematics.",
+                options: ["in", "at", "on", "with"],
+                correct: 1,
+                explanation: "'Good at' là cụm cố định có nghĩa là 'giỏi về môn gì đó'",
+                topic: "Prepositions"
+            },
+            {
+                question: "This is _____ book I've ever read.",
+                options: ["the best", "better", "good", "the better"],
+                correct: 0,
+                explanation: "So sánh nhất với tính từ ngắn: the + adj + est. 'Good' có dạng so sánh nhất là 'the best'",
+                topic: "Comparatives"
+            },
+            {
+                question: "I enjoy _____ music in my free time.",
+                options: ["listen", "to listen", "listening", "listened"],
+                correct: 2,
+                explanation: "'Enjoy' luôn được theo sau bởi V-ing. Enjoy + V-ing",
+                topic: "Gerunds"
+            },
+            {
+                question: "He said that he _____ tired.",
+                options: ["is", "was", "were", "be"],
+                correct: 1,
+                explanation: "Câu tường thuật: khi động từ tường thuật ở quá khứ (said), động từ trong mệnh đề phụ lùi thì",
+                topic: "Reported Speech"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30;
+        let timer;
+        let answered = false;
+        let topicStats = {};
+
+        function startQuiz() {
+            document.getElementById('quiz-start').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'block';
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            topicStats = {};
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            answered = false;
+            timeLeft = 30;
+            
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('question').textContent = q.question;
+            
+            const optionsHTML = q.options.map((option, index) => 
+                `<button class="quiz-button" onclick="selectAnswer(${index})">${option}</button>`
+            ).join('');
+            document.getElementById('options').innerHTML = optionsHTML;
+            
+            document.getElementById('explanation').classList.remove('show');
+            
+            const progress = (currentQuestion / questions.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = `⏰ Thời gian: ${timeLeft}s`;
+                
+                if (timeLeft <= 10) {
+                    document.getElementById('timer').style.background = 'linear-gradient(135deg, #ff3838 0%, #ff1744 100%)';
+                } else {
+                    document.getElementById('timer').style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
+                }
+                
+                if (timeLeft <= 0) {
+                    if (!answered) {
+                        selectAnswer(-1); // timeout
+                    }
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            clearInterval(timer);
+            
+            const q = questions[currentQuestion];
+            const buttons = document.querySelectorAll('#options button');
+            
+            // Initialize topic stats
+            if (!topicStats[q.topic]) {
+                topicStats[q.topic] = { correct: 0, total: 0 };
+            }
+            topicStats[q.topic].total++;
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (selectedIndex === q.correct) {
+                score++;
+                topicStats[q.topic].correct++;
+                if (selectedIndex >= 0) {
+                    buttons[selectedIndex].style.background = '#28a745';
+                    buttons[selectedIndex].innerHTML += ' ✅';
+                }
+            } else {
+                if (selectedIndex >= 0) {
+                    buttons[selectedIndex].style.background = '#dc3545';
+                    buttons[selectedIndex].innerHTML += ' ❌';
+                }
+                buttons[q.correct].style.background = '#28a745';
+                buttons[q.correct].innerHTML += ' ✅';
+            }
+            
+            document.getElementById('score').textContent = score;
+            
+            // Show explanation
+            document.getElementById('explanation').innerHTML = 
+                `<strong>Chủ đề:</strong> ${q.topic}<br><strong>Giải thích:</strong> ${q.explanation}`;
+            document.getElementById('explanation').classList.add('show');
+            
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion();
+            }, 3000);
+        }
+
+        function showResults() {
+            clearInterval(timer);
+            document.getElementById('quiz-area').style.display = 'none';
+            document.getElementById('final-results').style.display = 'block';
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').textContent = `${score}/${questions.length} (${percentage}%)`;
+            
+            // Star rating
+            const stars = Math.ceil(percentage / 20);
+            let starHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                starHTML += `<span class="star ${i <= stars ? 'filled' : ''}">⭐</span>`;
+            }
+            document.getElementById('star-rating').innerHTML = starHTML;
+            
+            // Performance analysis
+            let analysisHTML = '<h3>📊 Phân Tích Kết Quả</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">';
+            
+            for (let topic in topicStats) {
+                const stat = topicStats[topic];
+                const topicPercentage = Math.round((stat.correct / stat.total) * 100);
+                const color = topicPercentage >= 70 ? '#28a745' : topicPercentage >= 50 ? '#ffc107' : '#dc3545';
+                
+                analysisHTML += `
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid ${color};">
+                        <strong>${topic}</strong><br>
+                        ${stat.correct}/${stat.total} (${topicPercentage}%)
+                    </div>
+                `;
+            }
+            analysisHTML += '</div>';
+            
+            document.getElementById('performance-analysis').innerHTML = analysisHTML;
+            
+            // Achievements
+            let achievements = '';
+            if (percentage >= 90) {
+                achievements = '<div class="achievement">🏆 Thạc sĩ Ngữ pháp! Bạn đã thành thạo!</div>';
+            } else if (percentage >= 80) {
+                achievements = '<div class="achievement">🥇 Chuyên gia! Bạn có kiến thức vững vàng!</div>';
+            } else if (percentage >= 70) {
+                achievements = '<div class="achievement">🥈 Khá tốt! Bạn đã nắm được phần lớn!</div>';
+            } else if (percentage >= 60) {
+                achievements = '<div class="achievement">🥉 Cần cố gắng! Hãy ôn lại một số chủ đề!</div>';
+            } else {
+                achievements = '<div style="background: #ffc107; color: #212529; padding: 15px; border-radius: 10px; text-align: center;">📚 Hãy xem lại lý thuyết và thử lại nhé!</div>';
+            }
+            
+            document.getElementById('achievements').innerHTML = achievements;
+        }
+
+        function restartQuiz() {
+            document.getElementById('final-results').style.display = 'none';
+            document.getElementById('quiz-start').style.display = 'block';
+        }
+    </script>
+
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery</p>
+    </footer>
+</body>
+</html>

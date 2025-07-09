@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Modal Verbs Master - Game Luyện Tập Động Từ Khuyết Thiếu</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .modal-type {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .scenario-box {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .confidence-indicator {
+            height: 20px;
+            background: linear-gradient(to right, #ff4757, #ffa502, #2ed573);
+            border-radius: 10px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .confidence-marker {
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #333;
+            transition: left 0.3s ease;
+        }
+        
+        .answer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .modal-option {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .modal-option:hover {
+            border-color: #007bff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.3);
+        }
+        
+        .modal-option.selected {
+            border-color: #007bff;
+            background: #e3f2fd;
+            transform: scale(1.05);
+        }
+        
+        .modal-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            animation: correctPulse 0.6s ease;
+        }
+        
+        .modal-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .modal-meaning {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 10000;
+            display: none;
+            animation: achievementBounce 0.8s ease;
+        }
+        
+        @keyframes achievementBounce {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .streak-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: streakPulse 2s infinite ease-in-out;
+        }
+        
+        @keyframes streakPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @media (max-width: 768px) {
+            .answer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-option {
+                min-height: 60px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔧 Modal Verbs Master</h1>
+        <p>Game Luyện Tập Động Từ Khuyết Thiếu</p>
+        <nav>
+            <ul>
+                <li><a href="../index.html">🏠 Trang Chủ</a></li>
+                <li><a href="../grammar-lessons/lessons.html">📚 Bài Học</a></li>
+                <li><a href="games.html">🎮 Trò Chơi</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="streak-counter" id="streakCounter" style="display: none;">
+            🔥 Streak: <span id="streakNumber">0</span>
+        </div>
+
+        <section class="game-mode-selection" id="gameModeSection">
+            <h2>🎯 Chọn Chế Độ Chơi</h2>
+            <div class="game-mode-grid">
+                <button class="game-mode-btn" onclick="startGame('basics')">
+                    <h3>🎓 Cơ Bản</h3>
+                    <p>Can, Could, May, Might</p>
+                    <small>Khả năng & Xin phép</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('advice')">
+                    <h3>💡 Lời Khuyên</h3>
+                    <p>Should, Ought to, Had better</p>
+                    <small>Khuyên bảo & Gợi ý</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('necessity')">
+                    <h3>⚡ Cần Thiết</h3>
+                    <p>Must, Have to, Need to</p>
+                    <small>Bắt buộc & Nghĩa vụ</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('mixed')">
+                    <h3>🏆 Tổng Hợp</h3>
+                    <p>Tất cả Modal Verbs</p>
+                    <small>Thử thách cao cấp</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('scenarios')">
+                    <h3>🎭 Tình Huống</h3>
+                    <p>Áp dụng vào ngữ cảnh</p>
+                    <small>Thực tế & Giao tiếp</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('speed')">
+                    <h3>⚡ Tốc Độ</h3>
+                    <p>Thách thức 60 giây</p>
+                    <small>Phản xạ nhanh</small>
+                </button>
+            </div>
+        </section>
+
+        <section class="game-play" id="gamePlaySection" style="display: none;">
+            <div class="game-stats">
+                <div class="stat-card">
+                    <h4>📊 Điểm Số</h4>
+                    <div class="score" id="scoreDisplay">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>❓ Câu Hỏi</h4>
+                    <div id="questionNumber">1/10</div>
+                </div>
+                <div class="stat-card">
+                    <h4>⏱️ Thời Gian</h4>
+                    <div id="timeDisplay">--</div>
+                </div>
+                <div class="stat-card">
+                    <h4>🎯 Độ Chính Xác</h4>
+                    <div id="accuracyDisplay">100%</div>
+                </div>
+            </div>
+
+            <div class="modal-type" id="modalTypeDisplay"></div>
+
+            <div class="question-container">
+                <h3 id="questionText">Chọn modal verb phù hợp:</h3>
+                <div class="scenario-box" id="scenarioBox" style="display: none;">
+                    <strong>Tình huống:</strong> <span id="scenarioText"></span>
+                </div>
+                <div class="sentence-display" id="sentenceDisplay"></div>
+                
+                <div class="confidence-indicator" id="confidenceIndicator" style="display: none;">
+                    <div class="confidence-marker" id="confidenceMarker"></div>
+                </div>
+
+                <div class="answer-grid" id="answerGrid"></div>
+
+                <div class="explanation-box" id="explanationBox" style="display: none;">
+                    <h4>💡 Giải Thích:</h4>
+                    <p id="explanationText"></p>
+                </div>
+
+                <div class="game-controls">
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                        Câu Tiếp Theo ➡️
+                    </button>
+                    <button class="btn btn-secondary" onclick="showHint()" id="hintBtn">
+                        💡 Gợi Ý
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="game-results" id="gameResultsSection" style="display: none;">
+            <div class="results-container">
+                <h2 id="resultsTitle">🎉 Hoàn Thành!</h2>
+                <div class="final-score" id="finalScore"></div>
+                <div class="star-rating" id="starRating"></div>
+                
+                <div class="results-stats">
+                    <div class="result-stat">
+                        <span>Tổng câu hỏi:</span>
+                        <span id="totalQuestions">10</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Trả lời đúng:</span>
+                        <span id="correctAnswers">0</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Độ chính xác:</span>
+                        <span id="finalAccuracy">0%</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Thời gian:</span>
+                        <span id="totalTime">0s</span>
+                    </div>
+                </div>
+
+                <div class="achievements" id="achievementsDisplay"></div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="resetGame()">🔄 Chơi Lại</button>
+                    <button class="btn btn-secondary" onclick="location.href='games.html'">🎮 Game Khác</button>
+                    <button class="btn btn-secondary" onclick="location.href='../grammar-lessons/modal-verbs.html'">📚 Ôn Lý Thuyết</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="achievement-popup" id="achievementPopup">
+            <h3 id="achievementTitle">🏆 Thành Tích Mới!</h3>
+            <p id="achievementDescription"></p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery - Modal Verbs Master Game</p>
+    </footer>
+
+    <script>
+        // Game variables
+        let currentGameMode = '';
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 10;
+        let timeLeft = 60;
+        let gameTimer = null;
+        let startTime = null;
+        let streak = 0;
+        let maxStreak = 0;
+        let questions = [];
+        let isAnswered = false;
+
+        // Question sets for different game modes
+        const questionSets = {
+            basics: [
+                {
+                    sentence: "I ___ speak three languages fluently.",
+                    options: ["can", "could", "may", "might"],
+                    correct: 0,
+                    explanation: "'Can' diễn tả khả năng hiện tại. 'Could' là quá khứ của 'can'.",
+                    type: "Khả Năng (Ability)"
+                },
+                {
+                    sentence: "___ I borrow your pen?",
+                    options: ["Can", "Could", "May", "Might"],
+                    correct: 1,
+                    explanation: "'Could' lịch sự hơn 'can' khi xin phép.",
+                    type: "Xin Phép (Permission)"
+                },
+                {
+                    sentence: "It ___ rain tomorrow. The forecast is uncertain.",
+                    options: ["can", "could", "may", "might"],
+                    correct: 3,
+                    explanation: "'Might' diễn tả khả năng thấp, không chắc chắn.",
+                    type: "Khả Năng (Possibility)"
+                },
+                {
+                    sentence: "When I was young, I ___ run very fast.",
+                    options: ["can", "could", "may", "might"],
+                    correct: 1,
+                    explanation: "'Could' diễn tả khả năng trong quá khứ.",
+                    type: "Khả Năng Quá Khứ"
+                },
+                {
+                    sentence: "___ you help me with this problem?",
+                    options: ["Can", "Could", "May", "Might"],
+                    correct: 0,
+                    explanation: "'Can' dùng để nhờ giúp đỡ một cách thân thiện.",
+                    type: "Nhờ Giúp Đỡ"
+                }
+            ],
+            advice: [
+                {
+                    sentence: "You ___ see a doctor about that cough.",
+                    options: ["should", "ought to", "had better", "must"],
+                    correct: 0,
+                    explanation: "'Should' đưa ra lời khuyên mạnh mẽ nhưng không bắt buộc.",
+                    type: "Lời Khuyên"
+                },
+                {
+                    sentence: "Students ___ submit their essays by Friday.",
+                    options: ["should", "ought to", "had better", "might"],
+                    correct: 1,
+                    explanation: "'Ought to' diễn tả nghĩa vụ đạo đức hoặc quy định.",
+                    type: "Nghĩa Vụ"
+                },
+                {
+                    sentence: "You ___ leave now if you want to catch the last train.",
+                    options: ["should", "ought to", "had better", "could"],
+                    correct: 2,
+                    explanation: "'Had better' đưa ra lời khuyên với hậu quả nếu không làm theo.",
+                    type: "Lời Khuyên Cảnh Báo"
+                }
+            ],
+            necessity: [
+                {
+                    sentence: "You ___ wear a seatbelt while driving.",
+                    options: ["must", "have to", "need to", "should"],
+                    correct: 0,
+                    explanation: "'Must' diễn tả bắt buộc từ người nói hoặc luật pháp.",
+                    type: "Bắt Buộc"
+                },
+                {
+                    sentence: "I ___ go to work early tomorrow.",
+                    options: ["must", "have to", "need to", "should"],
+                    correct: 1,
+                    explanation: "'Have to' diễn tả bắt buộc từ hoàn cảnh bên ngoài.",
+                    type: "Bắt Buộc Bên Ngoài"
+                },
+                {
+                    sentence: "We ___ finish this project by Monday.",
+                    options: ["must", "have to", "need to", "should"],
+                    correct: 2,
+                    explanation: "'Need to' diễn tả sự cần thiết.",
+                    type: "Sự Cần Thiết"
+                }
+            ],
+            scenarios: [
+                {
+                    scenario: "Bạn đang ở thư viện và muốn mượn sách của bạn bè",
+                    sentence: "___ I borrow your book for a moment?",
+                    options: ["Can", "Could", "May", "Might"],
+                    correct: 1,
+                    explanation: "Trong tình huống lịch sự, 'Could' phù hợp nhất.",
+                    type: "Giao Tiếp Lịch Sự"
+                },
+                {
+                    scenario: "Bác sĩ đang tư vấn cho bệnh nhân về chế độ ăn",
+                    sentence: "You ___ eat more vegetables and less sugar.",
+                    options: ["can", "should", "may", "might"],
+                    correct: 1,
+                    explanation: "Bác sĩ đưa ra lời khuyên chuyên môn với 'should'.",
+                    type: "Lời Khuyên Chuyên Môn"
+                }
+            ]
+        };
+
+        function startGame(mode) {
+            currentGameMode = mode;
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            streak = 0;
+            maxStreak = 0;
+            startTime = Date.now();
+            
+            // Set questions based on mode
+            switch(mode) {
+                case 'speed':
+                    totalQuestions = 15;
+                    timeLeft = 60;
+                    startTimer();
+                    break;
+                case 'mixed':
+                    totalQuestions = 15;
+                    questions = shuffleArray([...questionSets.basics, ...questionSets.advice, ...questionSets.necessity]);
+                    break;
+                default:
+                    totalQuestions = 10;
+                    questions = shuffleArray(questionSets[mode] || questionSets.basics);
+            }
+            
+            if (mode === 'mixed') {
+                questions = questions.slice(0, totalQuestions);
+            }
+            
+            document.getElementById('gameModeSection').style.display = 'none';
+            document.getElementById('gamePlaySection').style.display = 'block';
+            
+            if (mode === 'speed') {
+                document.getElementById('streakCounter').style.display = 'block';
+            }
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                endGame();
+                return;
+            }
+            
+            isAnswered = false;
+            const question = questions[currentQuestion];
+            
+            // Update UI
+            document.getElementById('questionNumber').textContent = `${currentQuestion + 1}/${totalQuestions}`;
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('accuracyDisplay').textContent = 
+                Math.round((correctAnswers / Math.max(currentQuestion, 1)) * 100) + '%';
+            
+            // Show question type
+            document.getElementById('modalTypeDisplay').textContent = question.type;
+            
+            // Show scenario if exists
+            if (question.scenario) {
+                document.getElementById('scenarioBox').style.display = 'block';
+                document.getElementById('scenarioText').textContent = question.scenario;
+            } else {
+                document.getElementById('scenarioBox').style.display = 'none';
+            }
+            
+            // Show sentence
+            document.getElementById('sentenceDisplay').innerHTML = 
+                `<h3>"${question.sentence}"</h3>`;
+            
+            // Create answer options
+            const answerGrid = document.getElementById('answerGrid');
+            answerGrid.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'modal-option';
+                optionDiv.onclick = () => selectAnswer(index);
+                
+                optionDiv.innerHTML = `
+                    <strong>${option}</strong>
+                    <div class="modal-meaning">${getModalMeaning(option)}</div>
+                `;
+                
+                answerGrid.appendChild(optionDiv);
+            });
+            
+            // Hide explanation and next button
+            document.getElementById('explanationBox').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('hintBtn').style.display = 'inline-block';
+        }
+
+        function getModalMeaning(modal) {
+            const meanings = {
+                'can': 'có thể, khả năng',
+                'could': 'có thể (lịch sự/quá khứ)',
+                'may': 'có thể, xin phép',
+                'might': 'có lẽ, khả năng thấp',
+                'must': 'phải, bắt buộc',
+                'should': 'nên, lời khuyên',
+                'ought to': 'nên, nghĩa vụ',
+                'had better': 'tốt hơn nên',
+                'have to': 'phải (bên ngoài)',
+                'need to': 'cần phải'
+            };
+            return meanings[modal.toLowerCase()] || '';
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.modal-option');
+            
+            // Remove previous classes
+            options.forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected answer
+            options[selectedIndex].classList.add('selected');
+            
+            if (selectedIndex === question.correct) {
+                options[selectedIndex].classList.add('correct');
+                correctAnswers++;
+                score += calculateScore();
+                streak++;
+                maxStreak = Math.max(maxStreak, streak);
+                
+                // Update streak counter
+                if (currentGameMode === 'speed') {
+                    document.getElementById('streakNumber').textContent = streak;
+                }
+                
+                // Check for achievements
+                checkAchievements();
+                
+                playSound('correct');
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+                streak = 0;
+                playSound('incorrect');
+            }
+            
+            // Show explanation
+            document.getElementById('explanationText').textContent = question.explanation;
+            document.getElementById('explanationBox').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('hintBtn').style.display = 'none';
+        }
+
+        function calculateScore() {
+            let baseScore = 10;
+            if (currentGameMode === 'speed') baseScore += Math.max(0, timeLeft);
+            if (streak > 2) baseScore += streak * 2;
+            return baseScore;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function showHint() {
+            const question = questions[currentQuestion];
+            const hintTexts = {
+                "Khả Năng (Ability)": "Suy nghĩ về khả năng hiện tại hay quá khứ",
+                "Xin Phép (Permission)": "Cách nào lịch sự hơn?",
+                "Lời Khuyên": "Đây có phải lời khuyên không?",
+                "Bắt Buộc": "Điều này có bắt buộc không?"
+            };
+            
+            alert(hintTexts[question.type] || "Đọc kỹ ngữ cảnh của câu!");
+        }
+
+        function startTimer() {
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeDisplay').textContent = timeLeft + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            if (gameTimer) clearInterval(gameTimer);
+            
+            const totalTime = Math.round((Date.now() - startTime) / 1000);
+            const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            document.getElementById('gamePlaySection').style.display = 'none';
+            document.getElementById('gameResultsSection').style.display = 'block';
+            document.getElementById('streakCounter').style.display = 'none';
+            
+            // Show results
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('correctAnswers').textContent = correctAnswers;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('totalTime').textContent = totalTime + 's';
+            
+            // Show star rating
+            showStarRating(accuracy);
+            
+            // Show achievements
+            showFinalAchievements();
+        }
+
+        function showStarRating(accuracy) {
+            const starContainer = document.getElementById('starRating');
+            let stars = 0;
+            
+            if (accuracy >= 90) stars = 3;
+            else if (accuracy >= 70) stars = 2;
+            else if (accuracy >= 50) stars = 1;
+            
+            let starHTML = '';
+            for (let i = 0; i < 3; i++) {
+                starHTML += i < stars ? '⭐' : '☆';
+            }
+            
+            starContainer.innerHTML = `<div class="stars">${starHTML}</div>`;
+        }
+
+        function checkAchievements() {
+            if (streak === 5) {
+                showAchievement("🔥 Streak Master!", "5 câu đúng liên tiếp!");
+            } else if (streak === 10) {
+                showAchievement("🏆 Combo King!", "10 câu đúng liên tiếp!");
+            }
+        }
+
+        function showAchievement(title, description) {
+            document.getElementById('achievementTitle').textContent = title;
+            document.getElementById('achievementDescription').textContent = description;
+            document.getElementById('achievementPopup').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('achievementPopup').style.display = 'none';
+            }, 3000);
+        }
+
+        function showFinalAchievements() {
+            const achievements = [];
+            
+            if (correctAnswers === totalQuestions) {
+                achievements.push("🎯 Perfect Score - Trả lời đúng 100%!");
+            }
+            if (maxStreak >= 5) {
+                achievements.push("🔥 Streak Master - " + maxStreak + " câu đúng liên tiếp!");
+            }
+            if (currentGameMode === 'mixed' && correctAnswers >= 12) {
+                achievements.push("🏆 Modal Expert - Thành thạo tất cả modal verbs!");
+            }
+            
+            const achievementContainer = document.getElementById('achievementsDisplay');
+            achievementContainer.innerHTML = achievements.length > 0 ? 
+                '<h3>🏆 Thành Tích</h3>' + achievements.map(a => `<div class="achievement">${a}</div>`).join('') : 
+                '<p>Tiếp tục luyện tập để mở khóa thành tích!</p>';
+        }
+
+        function resetGame() {
+            document.getElementById('gameResultsSection').style.display = 'none';
+            document.getElementById('gameModeSection').style.display = 'block';
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function playSound(type) {
+            // Audio feedback could be added here
+            if (type === 'correct') {
+                console.log('🎵 Correct answer sound');
+            } else {
+                console.log('🎵 Incorrect answer sound');
+            }
+        }
+
+        // Initialize default questions
+        questions = shuffleArray(questionSets.basics);
+    </script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chơi Sắp xếp Câu - Luyện Tập Quy Trình</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            touch-action: manipulation; /* Cải thiện tương tác cảm ứng */
+        }
+        .sentence-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: grab;
+            user-select: none; /* Ngăn chọn văn bản khi kéo */
+        }
+        .sentence-card:active {
+            cursor: grabbing;
+            background-color: #f0f9ff; /* light-blue-50 */
+        }
+        .dragging {
+            opacity: 0.6;
+            transform: scale(1.03);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .drag-over {
+            border-top: 3px dashed #0284c7; /* sky-600 */
+        }
+        .correct .eng-sentence {
+            color: #15803d; /* green-700 */
+            font-weight: 500;
+        }
+        .incorrect .eng-sentence {
+            color: #b91c1c; /* red-700 */
+            font-weight: 500;
+        }
+        .feedback-animation {
+            animation: fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        #topic-selector {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 flex items-center justify-center min-h-screen p-2 sm:p-4">
+
+    <main class="bg-white rounded-2xl shadow-2xl shadow-slate-200 w-full max-w-3xl">
+        <div class="p-6 md:p-8 border-b border-slate-200">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Luyện Tập Sắp Xếp Quy Trình</h1>
+            <p class="text-slate-500 mt-1">Chọn một chủ đề, sau đó kéo thả để sắp xếp các bước theo đúng thứ tự.</p>
+            
+            <div class="mt-6">
+                <label for="topic-selector" class="block text-sm font-medium text-slate-700 mb-2">Chọn chủ đề để bắt đầu:</label>
+                <select id="topic-selector" class="w-full bg-slate-100 border border-slate-300 text-slate-900 text-base rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+        </div>
+
+        <div id="game-area" class="p-6 md:p-8 hidden">
+            <h2 id="topic-title" class="text-xl md:text-2xl font-semibold text-center text-sky-700 mb-6"></h2>
+            
+            <ul id="sentence-list" class="space-y-3 mb-6">
+                <!-- Sentence cards will be inserted here -->
+            </ul>
+
+            <div id="feedback-message" class="mt-4 text-center font-medium text-lg"></div>
+            
+            <div id="summary-container" class="hidden mt-6 p-4 bg-sky-50 border-l-4 border-sky-500 rounded-r-lg">
+                <h3 class="font-bold text-lg text-sky-800">Tóm tắt quy trình:</h3>
+                <p id="summary-text" class="text-sky-700 mt-1"></p>
+            </div>
+
+            <div id="controls" class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="check-button" class="w-full sm:w-auto bg-sky-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75 transition-all duration-300">
+                    Kiểm tra
+                </button>
+                <button id="reset-button" class="w-full sm:w-auto bg-slate-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-opacity-75 transition-all duration-300 hidden">
+                    Chơi lại
+                </button>
+            </div>
+        </div>
+        
+        <div id="welcome-area" class="p-6 md:p-8 text-center text-slate-500">
+            <p>Vui lòng chọn một chủ đề từ menu ở trên để bắt đầu trò chơi.</p>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameData = [
+                // DATA EXTRACTED FROM PDF
+                { title: "1. Vào Hội trường (Cách 1)", summary: "Collected your pack → 3th floor→ Show your pass → seat number → find your seat.", sentences: [ { id: 1, eng: "When you collected your pack, go to the lifts on the right.", vie: "Khi bạn thu thập hành lý của mình, hãy đi đến thang máy ở bên phải." }, { id: 2, eng: "Take the lift to the 3th floor and go to the main desk.", vie: "Đi thang máy lên tầng 3 và đến quầy chính." }, { id: 3, eng: "Show your pass from the conference pack to a member of staff at the desk.", vie: "Xuất trình thẻ hội nghị của bạn cho thành viên nhân viên tại bàn làm việc." }, { id: 4, eng: "He or she will tell you your seat number for the talk at the main hall.", vie: "Anh ấy hoặc cô ấy sẽ cho bạn biết số ghế của bạn." }, { id: 5, eng: "Once you are in the hall, someone will help you find your seat.", vie: "Khi bạn đã vào hội trường, sẽ có người giúp bạn tìm chỗ ngồi." } ] },
+                { title: "2. Vào Hội trường (Cách 2)", summary: "Arrive → welcome pack → find a schedule → attend his talk → time for questions", sentences: [ { id: 1, eng: "When you arrive at the conference hall, give your booking number.", vie: "Khi đến hội trường, hãy đưa số đặt chỗ của bạn." }, { id: 2, eng: "A staff member will note this down and give you a welcome pack.", vie: "Một nhân viên sẽ ghi lại điều này và đưa cho bạn một gói chào mừng." }, { id: 3, eng: "Inside you will find a schedule of events and the information of the key speaker.", vie: "Bên trong, bạn sẽ tìm thấy lịch trình các sự kiện và thông tin của người phát biểu chính." }, { id: 4, eng: "If you would like to attend his talk, it will take place in the main hall at midday.", vie: "Nếu bạn muốn tham dự buổi nói chuyện của anh ấy, nó sẽ diễn ra ở hội trường chính vào giữa trưa." }, { id: 5, eng: "After he finishes, there will be time for questions.", vie: "Sau khi anh ấy làm xong sẽ có thời gian để đặt câu hỏi." } ] },
+                { title: "3. Sự kiện Động vật", summary: "Collect your ticket → show this → inside the building→ pictures → playing with animals.", sentences: [ { id: 1, eng: "You go to the main office to collect the ticket.", vie: "Bạn đến văn phòng chính để lấy vé." }, { id: 2, eng: "You must show this to a member of staff before you go into the event.", vie: "Bạn phải xuất trình vé này cho nhân viên trước khi vào sự kiện." }, { id: 3, eng: "Inside the building, you will find a photography exhibition on the ground floor.", vie: "Bên trong tòa nhà, bạn sẽ thấy một triển lãm ảnh ở tầng trệt." }, { id: 4, eng: "Before you look at the pictures, a guide will tell you about the event.", vie: "Trước khi xem ảnh, một hướng dẫn viên sẽ giới thiệu cho bạn về sự kiện." }, { id: 5, eng: "These activities includes feeding and playing with the animals.", vie: "Các hoạt động này bao gồm cho động vật ăn và chơi đùa với động vật." } ] },
+                { title: "4. Trung tâm Lịch sử Tự nhiên", summary: "The most important → The entrance → enter the building → The ticket office → provide maps", sentences: [ { id: 1, eng: "The most important of these is the Natural history centre.", vie: "Quan trọng nhất trong số này là Trung tâm Lịch sử Tự nhiên." }, { id: 2, eng: "The entrance of the centre is on the town's main square.", vie: "Lối vào của trung tâm nằm trên quảng trường chính của thị trấn." }, { id: 3, eng: "When you enter the building from the square, you will see a set of stairs to your left.", vie: "Khi bạn vào tòa nhà từ quảng trường, bạn sẽ thấy một dãy cầu thang ở bên trái." }, { id: 4, eng: "The ticket office is on the top of these stairs, the staff there are very helpful.", vie: "Phòng vé nằm ở đầu cầu thang này, nhân viên ở đó rất hữu ích." }, { id: 5, eng: "As well as selling tickets, they can provide maps and useful tour information.", vie: "Ngoài việc bán vé, họ có thể cung cấp bản đồ và thông tin du lịch hữu ích." } ] },
+                { title: "5. Tham gia một cuộc đua", summary: "On your arrival → register → photo → armband → Put this on", sentences: [ { id: 1, eng: "On your arrival, please go to the information point at the north gate.", vie: "Khi đến nơi, vui lòng đến điểm thông tin ở cổng phía bắc." }, { id: 2, eng: "Runners must register here least 30 minutes before the race starts at 9am.", vie: "Vận động viên phải đăng ký tại đây ít nhất 30 phút trước khi cuộc đua bắt đầu lúc 9h sáng." }, { id: 3, eng: "To do this, you just need to give us your photo card.", vie: "Để làm điều này, bạn chỉ cần cung cấp cho chúng tôi thẻ ảnh của bạn." }, { id: 4, eng: "A member of staff will give you a numbered armband to wear.", vie: "Nhân viên sẽ đưa cho bạn một chiếc băng tay có đánh số để đeo." }, { id: 5, eng: "Please put this on immediately and join other competitors at the warm-up area.", vie: "Hãy mặc nó ngay lập tức và tham gia cùng các thí sinh khác tại khu vực khởi động." } ] },
+                { title: "6. Sự nghiệp cầu thủ Dizine", summary: "A child → Cannes → brilliant player → Italy → retired.", sentences: [ { id: 1, eng: "When he was a child, he played for some local teams near his home in Marseilles.", vie: "Khi còn nhỏ, anh chơi cho một số đội bóng địa phương gần nhà ở Marseilles." }, { id: 2, eng: "He then moved away from his home to join Cannes Football Club in the southern France.", vie: "Sau đó anh rời quê hương để gia nhập Câu lạc bộ bóng đá Cannes ở miền nam nước Pháp." }, { id: 3, eng: "While he was at that club, people throughout France saw that he was a brilliant player.", vie: "Khi anh ấy ở câu lạc bộ đó, mọi người trên khắp nước Pháp đều thấy anh ấy là một cầu thủ xuất sắc." }, { id: 4, eng: "After that, he moved to Italy and Spain, where he finished his playing career.", vie: "Sau đó, anh chuyển đến Ý và Tây Ban Nha, nơi anh kết thúc sự nghiệp thi đấu của mình." }, { id: 5, eng: "Since he retired from playing, he has worked as a football club manager.", vie: "Kể từ khi nghỉ thi đấu, anh ấy đã làm quản lý câu lạc bộ bóng đá." } ] },
+                { title: "7. Sự nghiệp diễn viên Jay Mist", summary: "United States → school → good at → starring role → famous.", sentences: [ { id: 1, eng: "They left their home country and took Jay to live in the United States.", vie: "Họ rời quê hương và đưa Jay sang Mỹ sinh sống." }, { id: 2, eng: "He started study at the school in that country, and in his free time he did some strength exercise.", vie: "Anh ấy bắt đầu học tại trường ở đất nước đó và trong thời gian rảnh rỗi anh ấy tập thể dục sức mạnh." }, { id: 3, eng: "Jay was very good at that and he participated in a bodybuilding competition.", vie: "Jay rất giỏi môn đó và anh ấy đã tham gia một cuộc thi thể hình." }, { id: 4, eng: "At one of these events, an actor agent saw him and gave him a starring role.", vie: "Tại một trong những sự kiện này, một diễn viên đại diện đã nhìn thấy anh ấy và giao cho anh ấy một vai chính." }, { id: 5, eng: "It was a major action movie and he gained famous from that film.", vie: "Đó là một bộ phim hành động lớn và anh ấy đã nổi tiếng nhờ bộ phim đó." } ] },
+                { title: "8. Cuộc đời nhà khoa học Albert", summary: "As a child → Lavime → wife → famous → USA.", sentences: [ { id: 1, eng: "As a child, he moved to a special school because he was so clever.", vie: "Khi còn nhỏ, anh đã chuyển đến một trường học đặc biệt vì quá thông minh." }, { id: 2, eng: "His best friend in his new class was a girl named Lavime.", vie: "Người bạn thân nhất của cậu ấy ở lớp mới là một cô gái tên Lavime." }, { id: 3, eng: "she later became his wife and helped him with his earliest scientific discoveries.", vie: "sau đó cô trở thành vợ anh và giúp anh thực hiện những khám phá khoa học đầu tiên." }, { id: 4, eng: "these were so advanced that he soon became famous all over the world.", vie: "những thứ này tiên tiến đến mức anh ấy nhanh chóng trở nên nổi tiếng khắp thế giới." }, { id: 5, eng: "Princeton University in the USA offered him a job because he was so famous.", vie: "Đại học Princeton ở Mỹ mời anh làm việc vì anh quá nổi tiếng." } ] },
+                { title: "9. Sự nghiệp nhà văn Tom Harper", summary: "Young → not satisfied → new characters → famous → rich.", sentences: [ { id: 1, eng: "when he was young, he began writing short stories for a magazine.", vie: "khi còn trẻ, anh ấy bắt đầu viết truyện ngắn cho một tạp chí." }, { id: 2, eng: "He soon wrote regularly for the magazine, but he was not satisfied.", vie: "Anh ấy sớm viết bài thường xuyên cho tạp chí nhưng không hài lòng." }, { id: 3, eng: "He almost left the magazine, but then he decided to create some unusual new characters.", vie: "Anh ấy gần như rời bỏ tạp chí, nhưng sau đó anh ấy quyết định tạo ra một số nhân vật mới khác thường." }, { id: 4, eng: "The characters he imagined were one of the most famous in the world.", vie: "Những nhân vật anh tưởng tượng là một trong những nhân vật nổi tiếng nhất thế giới." }, { id: 5, eng: "This popularity made Tom Harper rich and successful.", vie: "Sự nổi tiếng này đã khiến Tom Harper trở nên giàu có và thành công." } ] },
+                { title: "10. Cuộc đời của Betty Barr", summary: "1933 → city → USA → Hong Kong → 1980s.", sentences: [ { id: 1, eng: "She was born in Shanghai in 1933 by an American mother and a father from Scotland.", vie: "Cô sinh ra ở Thượng Hải vào năm 1933, có mẹ là người Mỹ và bố là người Scotland." }, { id: 2, eng: "At that time, Shanghai is a city filled with many people from different countries.", vie: "Vào thời điểm đó, Thượng Hải là một thành phố có rất nhiều người đến từ các quốc gia khác nhau." }, { id: 3, eng: "After she finished her school, she went to Wellesley College, a famous university in USA.", vie: "Sau khi học xong cô vào học tại Wellesley College, một trường đại học nổi tiếng ở Mỹ." }, { id: 4, eng: "However, she missed China, and applied for a job in Hong Kong, where she taught from 1959 to 1972, and learnt to speak Cantonese, the local language.", vie: "Tuy nhiên, cô nhớ Trung Quốc và nộp đơn xin việc ở Hồng Kông, nơi cô dạy từ năm 1959 đến năm 1972, và học nói tiếng Quảng Đông, ngôn ngữ địa phương." }, { id: 5, eng: "In the 1980s, she finally returned to China and still lives with her Shanghai husband, George Wang.", vie: "Vào những năm 1980, cuối cùng bà đã trở về Trung Quốc và vẫn sống với người chồng Thượng Hải, George Wang." } ] },
+                { title: "11. Mua nhà mới", summary: "Choose the location → consider several factors → price → shop and schools → depend on.", sentences: [ { id: 1, eng: "The first and most important thing is to choose the location.", vie: "Điều đầu tiên và quan trọng nhất là chọn vị trí." }, { id: 2, eng: "In order to choose the right place, you need to consider several factors.", vie: "Để chọn được nơi phù hợp, bạn cần cân nhắc nhiều yếu tố." }, { id: 3, eng: "The most important of these to look at is the price of homes.", vie: "Điều quan trọng nhất cần xem xét là giá nhà." }, { id: 4, eng: "Other factors to look at is the place of employment, shops and schools.", vie: "Các yếu tố khác cần xem xét là nơi làm việc, cửa hàng và trường học." }, { id: 5, eng: "Such requirements of course depend on your personal circumstances.", vie: "Những yêu cầu như vậy tất nhiên phụ thuộc vào hoàn cảnh cá nhân của bạn." } ] },
+                { title: "12. Làm lại thẻ chìa khóa", summary: "Key card → lose → your name → identification card → new key.", sentences: [ { id: 1, eng: "To enter the building and use the lift, you will need your key card.", vie: "Để vào tòa nhà và sử dụng thang máy, bạn sẽ cần thẻ chìa khóa." }, { id: 2, eng: "If you lose this, you will need to see the staff member at the front desk.", vie: "Nếu bạn làm mất cái này, bạn sẽ cần gặp nhân viên ở quầy lễ tân." }, { id: 3, eng: "He or she will ask for your name and your flat number, and then will write these down.", vie: "Anh ấy hoặc cô ấy sẽ hỏi tên và số căn hộ của bạn, sau đó sẽ viết chúng ra." }, { id: 4, eng: "You will also need to show your identification card.", vie: "Bạn cũng sẽ cần xuất trình thẻ căn cước." }, { id: 5, eng: "He or she will make a copy of it and give you a new key card.", vie: "Anh ấy hoặc cô ấy sẽ sao chép nó và đưa cho bạn một thẻ chìa khóa mới." } ] },
+                { title: "13. Quy trình đỗ xe", summary: "Take a ticket → show the date → display → leave → pay.", sentences: [ { id: 1, eng: "When you arrive, please take a ticket from a machine at the entrance.", vie: "Khi đến nơi, vui lòng lấy vé từ máy ở cổng vào." }, { id: 2, eng: "This ticket will show the date and the time you arrived.", vie: "Vé này sẽ hiển thị ngày và giờ bạn đến." }, { id: 3, eng: "Please display the ticket with this information in the window of your car.", vie: "Vui lòng hiển thị vé có thông tin này trên cửa sổ xe của bạn." }, { id: 4, eng: "Before you leave, please put the ticket on the machine by the gate.", vie: "Trước khi đi quý khách vui lòng cho vé vào máy cạnh cổng." }, { id: 5, eng: "The machine will read your information and tell you how much you have to pay.", vie: "Máy sẽ đọc thông tin của bạn và cho bạn biết bạn phải trả bao nhiêu." } ] },
+                { title: "14. Sử dụng xe đạp công cộng", summary: "Choose the bike → hire the cycle → enter the code → start your journey → return the bike.", sentences: [ { id: 1, eng: "Go to the collection point and click on the screen to choose the bike with your bank card.", vie: "Đến điểm thu tiền và bấm vào màn hình để chọn xe bằng thẻ ngân hàng của bạn." }, { id: 2, eng: "Choose \"hire the cycle\" on the screen and then follow the instructions to receive an unlock code.", vie: "Chọn \"thuê chu kỳ\" trên màn hình rồi làm theo hướng dẫn để nhận mã mở khóa." }, { id: 3, eng: "Enter the code on the lock of the bike and wait for the green lights.", vie: "Nhập mã vào ổ khóa xe và đợi đèn xanh." }, { id: 4, eng: "When the light comes, you can unlock your bike and start your journey.", vie: "Khi đèn bật sáng, bạn có thể mở khóa xe đạp và bắt đầu hành trình." }, { id: 5, eng: "When you finish your journey, return the bike to any empty collection point.", vie: "Khi bạn kết thúc hành trình, hãy trả xe về bất kỳ điểm thu gom nào còn trống." } ] },
+                { title: "15. Mua chiếc xe đầu tiên", summary: "Passed the test → not have a car → cheap → called → keys.", sentences: [ { id: 1, eng: "I have just passed the test, and I am the proud owner of the driving license.", vie: "Tôi vừa vượt qua bài kiểm tra và tôi tự hào sở hữu bằng lái xe." }, { id: 2, eng: "However, I did not have a car and my parents would not let me drive theirs.", vie: "Tuy nhiên, tôi không có ô tô và bố mẹ tôi không cho tôi lái xe của họ." }, { id: 3, eng: "So, when I saw an advertisement on the local newspaper for a cheap second hand car, I did not waste time.", vie: "Vì vậy, khi nhìn thấy một quảng cáo trên báo địa phương về một chiếc ô tô cũ giá rẻ, tôi đã không lãng phí thời gian." }, { id: 4, eng: "I called the number in that advert and arranged a meeting to meet the owner on the other side of the town.", vie: "Tôi gọi đến số trong quảng cáo đó và hẹn gặp người chủ ở phía bên kia thị trấn." }, { id: 5, eng: "We agreed on a price and when I handed over the money, he gave me the keys.", vie: "Chúng tôi đã thống nhất giá cả và khi tôi giao tiền, anh ấy đưa chìa khóa cho tôi." } ] },
+                { title: "16. Hướng dẫn cho sinh viên mới", summary: "Arrive → name → card → borrow books → home page.", sentences: [ { id: 1, eng: "When you arrive at the university, go to the help desk.", vie: "Khi đến trường đại học, hãy đến bàn trợ giúp." }, { id: 2, eng: "A member of staff will ask for your name and your address.", vie: "Một nhân viên sẽ hỏi tên và địa chỉ của bạn." }, { id: 3, eng: "He or she will enter your information into the computer and give you an identification card.", vie: "Người đó sẽ nhập thông tin của bạn vào máy tính và đưa cho bạn chứng minh nhân dân." }, { id: 4, eng: "You can use this card to borrow books from library and access lesson materials online.", vie: "Bạn có thể sử dụng thẻ này để mượn sách từ thư viện và truy cập tài liệu bài học trực tuyến." }, { id: 5, eng: "You will find these in material links on your home page.", vie: "Bạn sẽ tìm thấy những điều này trong các liên kết tài liệu trên trang chủ của bạn." } ] },
+                { title: "17. Nộp bài tập (Cách 1)", summary: "Check your report → Print → name → the front desk → complete.", sentences: [ { id: 1, eng: "First, it is a good idea to check your report and correct mistakes.", vie: "Đầu tiên, bạn nên kiểm tra báo cáo của mình và sửa lỗi." }, { id: 2, eng: "When you are sure there are no mistakes left, print out your report.", vie: "Khi bạn chắc chắn không còn sai sót nào, hãy in báo cáo của bạn ra." }, { id: 3, eng: "Next, complete a cover sheet with your name and your student number, and attach it to your printed assignment.", vie: "Tiếp theo, điền vào trang bìa có tên và mã số sinh viên của bạn rồi đính kèm vào bài tập đã in của bạn." }, { id: 4, eng: "Bring your assignment with the attached cover sheet to the front desk in the main hall.", vie: "Mang bài tập kèm theo bìa đến quầy lễ tân tại sảnh chính." }, { id: 5, eng: "The staff member will take your report and confirm that everything is complete.", vie: "Nhân viên sẽ lấy báo cáo của bạn và xác nhận rằng mọi thứ đã hoàn tất." } ] },
+                { title: "18. Nộp bài tập (Cách 2)", summary: "read → Print out → cover → the front desk → complete.", sentences: [ { id: 1, eng: "First, it is a good idea for you to read your work and correct spelling mistakes.", vie: "Đầu tiên, bạn nên đọc tác phẩm của mình và sửa lỗi chính tả." }, { id: 2, eng: "When you corrected all mistakes, print out your assignment.", vie: "Khi bạn sửa tất cả các lỗi sai, hãy in bài tập của bạn ra." }, { id: 3, eng: "Also, remember to print a separate cover sheet and attach it to your assignment.", vie: "Ngoài ra, hãy nhớ in một trang bìa riêng và đính kèm vào bài tập của bạn." }, { id: 4, eng: "You hand your assignment and attached document to the front desk in the library.", vie: "Bạn giao bài tập và tài liệu đính kèm cho quầy lễ tân trong thư viện." }, { id: 5, eng: "A staff will check and confirm that you complete.", vie: "Nhân viên sẽ kiểm tra và xác nhận rằng bạn đã hoàn thành." } ] },
+                { title: "19. Nộp bài online", summary: "\"Open new window\" → screen → drag and drop → \"Send\" → check.", sentences: [ { id: 1, eng: "In your account, press \"open new window\" on the top of the page.", vie: "Trong tài khoản của bạn, nhấn nút \"Mở cửa sổ mới\" ở đầu trang." }, { id: 2, eng: "When you do this, a new window will open on your screen.", vie: "Một cửa sổ mới sẽ mở ra trên màn hình của bạn." }, { id: 3, eng: "Simply drag and drop your files.", vie: "Kéo và thả tập tin của bạn vào đây một cách đơn giản." }, { id: 4, eng: "When you have sent your files, you must go back and press \"Send\" button.", vie: "Khi bạn đã gửi tệp của mình, bạn phải quay lại và nhấn và nút “gửi\"." }, { id: 5, eng: "After you send your course work, you should check your email for confirmation message.", vie: "Sau khi gửi bài tập khóa học của mình, bạn nên kiểm tra email để biết thông báo xác nhận." } ] },
+                { title: "20. Viết báo cáo", summary: "Look at websites → save links → reference → mistakes → send.", sentences: [ { id: 1, eng: "Before you start to write your report, you should look at websites for the information you need.", vie: "Trước khi bắt đầu viết báo cáo, bạn nên xem các trang web để biết thông tin bạn cần." }, { id: 2, eng: "Remember to save links to websites and include them in your report.", vie: "Hãy nhớ lưu liên kết đến các trang web và đưa chúng vào báo cáo của bạn." }, { id: 3, eng: "You should also include a lists of books that you use for reference.", vie: "Bạn cũng nên kèm theo danh sách sách mà bạn sử dụng để tham khảo." }, { id: 4, eng: "When you have finished your report, correct all the mistakes.", vie: "Khi bạn hoàn thành báo cáo của mình, hãy sửa tất cả các lỗi sai." }, { id: 5, eng: "After you make the corrections, send your report by your email.", vie: "Sau khi bạn thực hiện chỉnh sửa, hãy gửi báo cáo qua email của bạn." } ] },
+                { title: "21. Sử dụng máy in", summary: "Place to put → turn it on → a light comes → green → paper.", sentences: [ { id: 1, eng: "First, you need to find an appropriate place to put your printer.", vie: "Đầu tiên bạn cần tìm một nơi thích hợp để đặt máy in." }, { id: 2, eng: "When your printer is in place, turn it on using the switch.", vie: "Khi máy in của bạn đã sẵn sàng, hãy bật máy in bằng công tắc." }, { id: 3, eng: "A light comes on at the front of the printer.", vie: "Đèn bật sáng ở phía trước máy in." }, { id: 4, eng: "If the light is green, your printer is ready to use.", vie: "Nếu đèn xanh thì máy in của bạn đã sẵn sàng sử dụng." }, { id: 5, eng: "Before using the printer, you need to put paper into it.", vie: "Trước khi sử dụng máy in cần cho giấy vào." } ] },
+                { title: "22. Giải quyết một vấn đề", summary: "Find out → form → true or not → compare → knowledge.", sentences: [ { id: 1, eng: "The first step is to find out what you know about the problem.", vie: "Bước đầu tiên là tìm hiểu những gì bạn biết về vấn đề." }, { id: 2, eng: "The next one is to form a hypothesis or an idea based on your information.", vie: "Việc tiếp theo là hình thành một giả thuyết hoặc ý tưởng dựa trên thông tin của bạn." }, { id: 3, eng: "Then, you need to perform experiments to see if these ideas are true or not.", vie: "Sau đó, bạn cần thực hiện các thí nghiệm để xem những ý tưởng này có đúng hay không." }, { id: 4, eng: "You can also compare your results with experiments in the past.", vie: "Bạn cũng có thể so sánh kết quả của mình với các thử nghiệm trước đây." }, { id: 5, eng: "In this way, you can add to your knowledge of the subject for future experiments.", vie: "Bằng cách này, bạn có thể bổ sung kiến thức về chủ đề này cho các thí nghiệm trong tương lai." } ] },
+                { title: "23. Hướng dẫn khi gặp cháy", summary: "Alarm → Emergency Exit → ground floor → leave the building → grass.", sentences: [ { id: 1, eng: "When you hear the alarm, leave your bags and belongings at the desk.", vie: "Khi nghe thấy tiếng chuông báo thức, hãy để túi xách, đồ đạc ở bàn làm việc." }, { id: 2, eng: "Next, walk calmly to the doors marked Emergency Exit.", vie: "Tiếp theo, bình tĩnh đi đến cửa có ghi Lối thoát khẩn cấp." }, { id: 3, eng: "Through these doors, there are stairs leading you to the ground floor.", vie: "Qua những cánh cửa này sẽ có cầu thang dẫn bạn xuống tầng trệt." }, { id: 4, eng: "When you reach the bottom of these stairs, leave the building through front entrance.", vie: "Khi bạn đến chân cầu thang này, hãy rời khỏi tòa nhà bằng lối vào phía trước." }, { id: 5, eng: "Outside, gather on the grass and wait for further instructions.", vie: "Bên ngoài, tập trung trên bãi cỏ và chờ chỉ dẫn thêm." } ] },
+                { title: "24. Khi đèn giao thông hỏng", summary: "Moved very slowly → roads → on time → in the evening → going back home.", sentences: [ { id: 1, eng: "They were out of order and the traffic moved very slowly.", vie: "Họ đã mất trật tự và giao thông di chuyển rất chậm." }, { id: 2, eng: "This created long delays in the roads to the city's business district.", vie: "Điều này đã tạo ra sự chậm trễ kéo dài trên các con đường đến khu thương mại của thành phố." }, { id: 3, eng: "As a result of these delays, many people were not able to get to work on time.", vie: "Do sự chậm trễ này, nhiều người đã không thể đi làm đúng giờ." }, { id: 4, eng: "Fortunately, in the evening, the traffic lights were working again.", vie: "May mắn thay, vào buổi tối, đèn giao thông đã hoạt động trở lại." }, { id: 5, eng: "Therefore, there were no further delays for people going back home.", vie: "Vì vậy, không còn sự chậm trễ nào nữa cho việc người dân trở về nhà." } ] },
+                { title: "25. Quy trình cho người giao hàng", summary: "Arrive → collect a map → follow the route → completed → keys.", sentences: [ { id: 1, eng: "You should arrive at the main office by 6.30 am and collect your keys.", vie: "Bạn nên đến văn phòng chính trước 6h30 sáng và lấy chìa khóa." }, { id: 2, eng: "In the office, you can also collect a map of your route.", vie: "Trong văn phòng, bạn cũng có thể thu thập bản đồ tuyến đường của mình." }, { id: 3, eng: "You must follow the route on the map to deliver packages.", vie: "Bạn phải đi theo lộ trình trên bản đồ để giao gói hàng." }, { id: 4, eng: "When you have completed all deliveries, return to your office.", vie: "Khi bạn đã hoàn thành tất cả việc giao hàng, hãy quay trở lại văn phòng của bạn." }, { id: 5, eng: "You must return your keys to the office manager after you get back.", vie: "Bạn phải trả lại chìa khóa cho người quản lý văn phòng sau khi quay lại." } ] },
+                { title: "26. Trồng khoai tây", summary: "Big pot → green → dig → water → weeks.", sentences: [ { id: 1, eng: "All you need is some earth, an old potato and a big pot.", vie: "Tất cả những gì bạn cần là một ít đất, một củ khoai tây cũ và một chậu lớn." }, { id: 2, eng: "An old potato will have little roots, will be a little green, and won't be good for eating.", vie: "Khoai tây già sẽ ít rễ, hơi xanh và không ăn được." }, { id: 3, eng: "This colour means it is perfect for growing, you should put some earth in the pot and dig it deep down.", vie: "Màu này có nghĩa là rất thích hợp cho việc trồng trọt, bạn nên cho một ít đất vào chậu và đào sâu xuống." }, { id: 4, eng: "When you've done this, you should water it everyday and place it in a sunny spot.", vie: "Khi làm xong bạn nên tưới nước hàng ngày và đặt ở nơi có nắng." }, { id: 5, eng: "With this care, you should see a potato plant growing after couples of weeks.", vie: "Với cách chăm sóc này, bạn sẽ thấy cây khoai tây phát triển sau vài tuần." } ] },
+                { title: "27. Trồng hoa hồng", summary: "Dig → put the base → by hand → water → weather.", sentences: [ { id: 1, eng: "In the chosen place, dig a deep hole in the ground.", vie: "Ở nơi đã chọn, đào một cái hố sâu trong đất." }, { id: 2, eng: "Put the base of the rose and cover the root with loose earth.", vie: "Đặt gốc hoa hồng và phủ đất tơi xốp lên rễ." }, { id: 3, eng: "Put this down by hand until the tree is straight.", vie: "Đặt đất xuống bằng tay cho đến khi cây thẳng." }, { id: 4, eng: "Once you planted it, water them every day.", vie: "Sau khi trồng, hãy tưới nước cho cây hàng ngày." }, { id: 5, eng: "The amount of water depends on the weather condition.", vie: "Lượng nước tùy thuộc vào điều kiện thời tiết." } ] },
+                { title: "28. Con đường trở thành Vận động viên", summary: "As a child → Because of → They invited → hard work→ A year later.", sentences: [ { id: 1, eng: "As a child, she spent countless hours practicing her favorite sport every day.", vie: "Khi còn nhỏ, cô đã dành vô số thời gian để luyện tập môn thể thao yêu thích của mình mỗi ngày." }, { id: 2, eng: "Because of this dedication and passion, she quickly improved her skills significantly.", vie: "Chính vì sự cống hiến và đam mê này mà kỹ năng của cô đã nhanh chóng được nâng cao đáng kể." }, { id: 3, eng: "They invited her to join their team, recognizing her exceptional talent and commitment.", vie: "Họ mời cô gia nhập nhóm của họ vì nhận ra tài năng và sự cam kết đặc biệt của cô." }, { id: 4, eng: "The hard work and determination proved to be successful and rewarding.", vie: "Sự chăm chỉ và quyết tâm đã mang lại thành công và xứng đáng." }, { id: 5, eng: "A year later, after extensive training and dedication, she became a key player.", vie: "Một năm sau, sau quá trình rèn luyện và cống hiến chuyên sâu, cô đã trở thành một cầu thủ chủ chốt." } ] },
+                { title: "29. Quy trình nhận quà", summary: "Ring the bell → show member card → detail of person → fill in the document → take a seat and wait.", sentences: [ { id: 1, eng: "ring the bell of the gate.", vie: "bấm chuông ở cổng." }, { id: 2, eng: "show member card.", vie: "xuất trình thẻ thành viên." }, { id: 3, eng: "detail of person.", vie: "chi tiết của người." }, { id: 4, eng: "fill in the document.", vie: "điền vào tài liệu." }, { id: 5, eng: "take a seat and wait.", vie: "ngồi và chờ đợi." } ] },
+                { title: "30. Quy trình lấy tài liệu", summary: "before you take... → go to the desk → sign at the back → give photo → he or she will check.", sentences: [ { id: 1, eng: "before you take documents, you have to do...", vie: "trước khi lấy tài liệu, bạn phải...." }, { id: 2, eng: "to get this, you go to the desk of person from library.", vie: "để làm điều này, bạn hãy đến cái bàn của thư viện." }, { id: 3, eng: "you sign at the back of photograph.", vie: "bạn ký vào phía sau của tấm ảnh." }, { id: 4, eng: "give photo for man of library.", vie: "đưa tấm ảnh cho người của thư viện." }, { id: 5, eng: "he or she will check.", vie: "anh ấy/ chị ấy sẽ check." } ] },
+                { title: "36. Sự nghiệp một nghệ sĩ", summary: "first performed → Although → soon appeared→ After being famous→ traveled widely.", sentences: [ { id: 1, eng: "He first performed at one of the city's theater at the age of 5.", vie: "Anh biểu diễn lần đầu tiên tại một trong những nhà hát của thành phố vào năm 5 tuổi." }, { id: 2, eng: "Although he was very young, he was very popular on the stage.", vie: "Tuy còn trẻ nhưng anh đã rất nổi tiếng trên sân khấu." }, { id: 3, eng: "His popular grew, he soon appeared in all the theaters of the country.", vie: "Sự nổi tiếng của anh ngày càng tăng, anh sớm xuất hiện ở tất cả các rạp chiếu phim trong nước." }, { id: 4, eng: "After being famous at home, he moved to America and joined a traveling theater group.", vie: "Sau khi nổi tiếng ở quê nhà, anh sang Mỹ và tham gia một nhóm kịch lưu động." }, { id: 5, eng: "He traveled widely with this group, then decided there to make it his home.", vie: "Anh ấy đã đi du lịch nhiều nơi với nhóm này, sau đó quyết định đến đó để biến nơi đây thành nhà của mình." } ] }
+            ];
+
+            let currentTopicIndex = -1;
+            let draggedItem = null;
+
+            const topicSelector = document.getElementById('topic-selector');
+            const welcomeArea = document.getElementById('welcome-area');
+            const gameArea = document.getElementById('game-area');
+            const topicTitleEl = document.getElementById('topic-title');
+            const sentenceListEl = document.getElementById('sentence-list');
+            const feedbackMessageEl = document.getElementById('feedback-message');
+            const summaryContainerEl = document.getElementById('summary-container');
+            const summaryTextEl = document.getElementById('summary-text');
+            const checkButton = document.getElementById('check-button');
+            const resetButton = document.getElementById('reset-button');
+
+            function populateSelector() {
+                topicSelector.innerHTML = '<option value="-1" disabled selected>-- Chọn một chủ đề --</option>';
+                gameData.forEach((topic, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = topic.title;
+                    topicSelector.appendChild(option);
+                });
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function loadTopic(index) {
+                if (index < 0) return;
+                currentTopicIndex = index;
+                
+                welcomeArea.classList.add('hidden');
+                gameArea.classList.remove('hidden');
+                gameArea.classList.add('feedback-animation');
+
+                sentenceListEl.innerHTML = '';
+                feedbackMessageEl.innerHTML = '';
+                summaryContainerEl.classList.add('hidden');
+                checkButton.classList.remove('hidden');
+                resetButton.classList.add('hidden');
+                checkButton.disabled = false;
+
+                const topic = gameData[index];
+                topicTitleEl.textContent = topic.title;
+                summaryTextEl.textContent = topic.summary;
+
+                const shuffledSentences = shuffleArray([...topic.sentences]);
+                shuffledSentences.forEach(sentence => {
+                    const listItem = document.createElement('li');
+                    listItem.dataset.id = sentence.id;
+                    listItem.draggable = true;
+                    listItem.className = 'sentence-card bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-start space-x-4 hover:shadow-md hover:border-sky-300';
+                    
+                    listItem.innerHTML = `
+                        <span class="flex-shrink-0 h-7 w-7 bg-slate-200 text-slate-600 font-bold text-sm rounded-full flex items-center justify-center border-2 border-white ring-1 ring-slate-300">?</span>
+                        <div class="flex-grow">
+                            <p class="eng-sentence text-slate-800 text-base">${sentence.eng}</p>
+                            <p class="vie-sentence text-emerald-700 mt-2 text-sm hidden"></p>
+                        </div>
+                    `;
+                    sentenceListEl.appendChild(listItem);
+                });
+
+                addDragListeners();
+            }
+
+            function addDragListeners() {
+                const draggables = document.querySelectorAll('.sentence-card');
+                draggables.forEach(draggable => {
+                    // Mouse Events
+                    draggable.addEventListener('dragstart', handleDragStart);
+                    draggable.addEventListener('dragend', handleDragEnd);
+                    
+                    // Touch Events
+                    draggable.addEventListener('touchstart', handleTouchStart, { passive: false });
+                });
+                
+                // Mouse Event for container
+                sentenceListEl.addEventListener('dragover', handleDragOver);
+                
+                // Touch Events for document (for better control during drag)
+                document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                document.addEventListener('touchend', handleTouchEnd);
+            }
+
+            // --- Mouse Drag Handlers ---
+            function handleDragStart(e) {
+                draggedItem = e.target.closest('li');
+                if (!draggedItem) return;
+                setTimeout(() => {
+                    draggedItem.classList.add('dragging');
+                }, 0);
+            }
+
+            function handleDragEnd() {
+                if (!draggedItem) return;
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault();
+                if (!draggedItem) return;
+                const afterElement = getDragAfterElement(sentenceListEl, e.clientY);
+                if (afterElement == null) {
+                    sentenceListEl.appendChild(draggedItem);
+                } else {
+                    sentenceListEl.insertBefore(draggedItem, afterElement);
+                }
+            }
+
+            // --- Touch Drag Handlers ---
+            function handleTouchStart(e) {
+                // Prevent scrolling and other default touch actions
+                e.preventDefault();
+                draggedItem = e.target.closest('li');
+                if (!draggedItem) return;
+                draggedItem.classList.add('dragging');
+            }
+
+            function handleTouchMove(e) {
+                if (!draggedItem) return;
+                // We prevent default to stop scrolling while dragging
+                e.preventDefault();
+                const touch = e.touches[0];
+                const afterElement = getDragAfterElement(sentenceListEl, touch.clientY);
+                
+                if (afterElement == null) {
+                    sentenceListEl.appendChild(draggedItem);
+                } else {
+                    sentenceListEl.insertBefore(draggedItem, afterElement);
+                }
+            }
+
+            function handleTouchEnd() {
+                if (!draggedItem) return;
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            }
+
+
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.sentence-card:not(.dragging)')];
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+
+            function checkAnswer() {
+                const listItems = sentenceListEl.querySelectorAll('li');
+                let isCorrect = true;
+
+                listItems.forEach((item, index) => {
+                    const numberEl = item.querySelector('span');
+                    numberEl.textContent = index + 1;
+                    
+                    if (parseInt(item.dataset.id) !== index + 1) {
+                        isCorrect = false;
+                        item.classList.add('incorrect');
+                        item.classList.remove('correct');
+                        numberEl.classList.add('bg-red-200', 'text-red-800', 'ring-red-400');
+                        numberEl.classList.remove('bg-slate-200', 'text-slate-600', 'ring-slate-300', 'bg-green-200', 'text-green-800', 'ring-green-400');
+                    } else {
+                        item.classList.add('correct');
+                        item.classList.remove('incorrect');
+                        numberEl.classList.add('bg-green-200', 'text-green-800', 'ring-green-400');
+                        numberEl.classList.remove('bg-slate-200', 'text-slate-600', 'ring-slate-300', 'bg-red-200', 'text-red-800', 'ring-red-400');
+                    }
+                });
+
+                feedbackMessageEl.classList.add('feedback-animation');
+                if (isCorrect) {
+                    feedbackMessageEl.textContent = 'Chính xác! Bạn đã sắp xếp đúng quy trình.';
+                    feedbackMessageEl.className = 'text-center font-semibold text-green-600 feedback-animation text-lg';
+                    showResults();
+                } else {
+                    feedbackMessageEl.textContent = 'Chưa đúng. Hãy kiểm tra lại các bước màu đỏ.';
+                    feedbackMessageEl.className = 'text-center font-semibold text-red-600 feedback-animation text-lg';
+                }
+            }
+
+            function showResults() {
+                checkButton.classList.add('hidden');
+                resetButton.classList.remove('hidden');
+                checkButton.disabled = true;
+
+                const listItems = sentenceListEl.querySelectorAll('li');
+                listItems.forEach(item => {
+                    item.draggable = false;
+                    item.style.cursor = 'default';
+                    
+                    const currentTopic = gameData[currentTopicIndex];
+                    const sentenceData = currentTopic.sentences.find(s => s.id == item.dataset.id);
+                    if (sentenceData) {
+                        const vieSentenceEl = item.querySelector('.vie-sentence');
+                        vieSentenceEl.textContent = `VIE: ${sentenceData.vie}`;
+                        vieSentenceEl.classList.remove('hidden');
+                    }
+                });
+
+                summaryContainerEl.classList.remove('hidden');
+                summaryContainerEl.classList.add('feedback-animation');
+            }
+
+            topicSelector.addEventListener('change', (e) => {
+                loadTopic(parseInt(e.target.value));
+            });
+
+            resetButton.addEventListener('click', () => {
+                loadTopic(currentTopicIndex);
+            });
+            
+            checkButton.addEventListener('click', checkAnswer);
+
+            // --- INITIALIZE ---
+            populateSelector();
+        });
+    </script>
+</body>
+</html>

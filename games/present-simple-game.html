@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Present Simple Practice Game</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .game-mode {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .mode-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            color: white;
+            text-decoration: none;
+        }
+        .game-area {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .game-area.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .question-counter {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .star-rating {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+        }
+        .star {
+            color: #ddd;
+            transition: color 0.3s ease;
+        }
+        .star.filled {
+            color: #ffd700;
+        }
+        .achievement {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            animation: celebration 0.6s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Present Simple Practice Game</h1>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../grammar-lessons/present-simple.html">Lesson</a></li>
+                <li><a href="games.html">All Games</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="game-menu">
+            <h2>Chọn Chế Độ Luyện Tập - Choose Practice Mode</h2>
+            <div class="game-mode">
+                <div class="mode-card" onclick="startGame('quiz')">
+                    <h3>📝 Trắc Nghiệm</h3>
+                    <p>Multiple Choice Quiz</p>
+                    <small>20 câu hỏi | 5 phút</small>
+                </div>
+                <div class="mode-card" onclick="startGame('fill')">
+                    <h3>✏️ Điền Từ</h3>
+                    <p>Fill in the Blanks</p>
+                    <small>15 câu | 10 phút</small>
+                </div>
+                <div class="mode-card" onclick="startGame('transform')">
+                    <h3>🔄 Chuyển Đổi</h3>
+                    <p>Sentence Transformation</p>
+                    <small>10 câu | 15 phút</small>
+                </div>
+                <div class="mode-card" onclick="startGame('mixed')">
+                    <h3>🎯 Hỗn Hợp</h3>
+                    <p>Mixed Practice</p>
+                    <small>25 câu | 20 phút</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Game -->
+        <div id="quiz-game" class="game-area">
+            <div class="game-container">
+                <div class="question-counter">
+                    <span>Câu <span id="quiz-current">1</span> / <span id="quiz-total">20</span></span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="quiz-progress"></div>
+                    </div>
+                </div>
+                <h3 id="quiz-question"></h3>
+                <div id="quiz-options"></div>
+                <div id="quiz-feedback"></div>
+                <div class="score-display">
+                    <span>Điểm: <span id="quiz-score">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fill Game -->
+        <div id="fill-game" class="game-area">
+            <div class="game-container">
+                <div class="question-counter">
+                    <span>Câu <span id="fill-current">1</span> / <span id="fill-total">15</span></span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="fill-progress"></div>
+                    </div>
+                </div>
+                <h3 id="fill-question"></h3>
+                <input type="text" id="fill-answer" class="input-field" placeholder="Nhập câu trả lời...">
+                <button onclick="checkFillAnswer()" class="quiz-button">Kiểm Tra</button>
+                <div id="fill-feedback"></div>
+                <div class="score-display">
+                    <span>Điểm: <span id="fill-score">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="game-area">
+            <div class="game-container">
+                <h2>🎉 Kết Quả Luyện Tập</h2>
+                <div class="score-display">
+                    <h3>Điểm Của Bạn: <span id="final-score"></span></h3>
+                    <div class="star-rating" id="star-rating"></div>
+                </div>
+                <div id="achievements"></div>
+                <div id="feedback-message"></div>
+                <button onclick="resetGame()" class="quiz-button">Chơi Lại</button>
+                <a href="../grammar-lessons/present-simple.html" class="quiz-button">Xem Lại Lý Thuyết</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const quizQuestions = [
+            {
+                question: "She _____ to work every day.",
+                options: ["go", "goes", "going", "gone"],
+                correct: 1,
+                explanation: "Với chủ ngữ 'she' (số ít, ngôi thứ 3), động từ phải thêm 's/es'"
+            },
+            {
+                question: "They _____ coffee in the morning.",
+                options: ["drinks", "drink", "drinking", "drank"],
+                correct: 1,
+                explanation: "Với chủ ngữ 'they' (số nhiều), động từ giữ nguyên"
+            },
+            {
+                question: "_____ he work here?",
+                options: ["Do", "Does", "Is", "Are"],
+                correct: 1,
+                explanation: "Với chủ ngữ 'he' (số ít, ngôi thứ 3), dùng 'Does' cho câu hỏi"
+            },
+            {
+                question: "I _____ like spicy food.",
+                options: ["don't", "doesn't", "not", "am not"],
+                correct: 0,
+                explanation: "Với chủ ngữ 'I', dùng 'don't' để phủ định"
+            },
+            {
+                question: "The sun _____ in the east.",
+                options: ["rise", "rises", "rising", "rose"],
+                correct: 1,
+                explanation: "Diễn tả sự thật hiển nhiên, chủ ngữ 'the sun' là số ít"
+            }
+        ];
+
+        const fillQuestions = [
+            {
+                question: "I _____ (study) English every day.",
+                answer: "study",
+                explanation: "Với chủ ngữ 'I', động từ giữ nguyên"
+            },
+            {
+                question: "She _____ (watch) TV in the evening.",
+                answer: "watches",
+                explanation: "Với 'she' và động từ kết thúc 'ch', thêm 'es'"
+            },
+            {
+                question: "We _____ (not go) to school on Sunday.",
+                answer: "don't go",
+                explanation: "Câu phủ định với 'we' dùng 'don't + V'"
+            }
+        ];
+
+        let currentGame = '';
+        let currentQuestion = 0;
+        let score = 0;
+        let totalQuestions = 0;
+
+        function startGame(mode) {
+            currentGame = mode;
+            currentQuestion = 0;
+            score = 0;
+            
+            document.getElementById('game-menu').style.display = 'none';
+            
+            if (mode === 'quiz') {
+                totalQuestions = quizQuestions.length;
+                document.getElementById('quiz-game').classList.add('active');
+                document.getElementById('quiz-total').textContent = totalQuestions;
+                showQuizQuestion();
+            } else if (mode === 'fill') {
+                totalQuestions = fillQuestions.length;
+                document.getElementById('fill-game').classList.add('active');
+                document.getElementById('fill-total').textContent = totalQuestions;
+                showFillQuestion();
+            }
+        }
+
+        function showQuizQuestion() {
+            if (currentQuestion >= quizQuestions.length) {
+                showResults();
+                return;
+            }
+
+            const q = quizQuestions[currentQuestion];
+            document.getElementById('quiz-current').textContent = currentQuestion + 1;
+            document.getElementById('quiz-question').textContent = q.question;
+            
+            const optionsHTML = q.options.map((option, index) => 
+                `<button class="quiz-button" onclick="checkQuizAnswer(${index})">${option}</button>`
+            ).join('');
+            document.getElementById('quiz-options').innerHTML = optionsHTML;
+            
+            const progress = ((currentQuestion) / totalQuestions) * 100;
+            document.getElementById('quiz-progress').style.width = progress + '%';
+            
+            document.getElementById('quiz-feedback').innerHTML = '';
+        }
+
+        function checkQuizAnswer(selectedIndex) {
+            const q = quizQuestions[currentQuestion];
+            const buttons = document.querySelectorAll('#quiz-options button');
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (selectedIndex === q.correct) {
+                score++;
+                buttons[selectedIndex].style.background = '#28a745';
+                document.getElementById('quiz-feedback').innerHTML = 
+                    `<div class="feedback correct">✅ Chính xác! ${q.explanation}</div>`;
+            } else {
+                buttons[selectedIndex].style.background = '#dc3545';
+                buttons[q.correct].style.background = '#28a745';
+                document.getElementById('quiz-feedback').innerHTML = 
+                    `<div class="feedback incorrect">❌ Sai rồi. ${q.explanation}</div>`;
+            }
+
+            document.getElementById('quiz-score').textContent = score;
+            
+            setTimeout(() => {
+                currentQuestion++;
+                showQuizQuestion();
+            }, 2000);
+        }
+
+        function showFillQuestion() {
+            if (currentQuestion >= fillQuestions.length) {
+                showResults();
+                return;
+            }
+
+            const q = fillQuestions[currentQuestion];
+            document.getElementById('fill-current').textContent = currentQuestion + 1;
+            document.getElementById('fill-question').textContent = q.question;
+            document.getElementById('fill-answer').value = '';
+            
+            const progress = ((currentQuestion) / totalQuestions) * 100;
+            document.getElementById('fill-progress').style.width = progress + '%';
+            
+            document.getElementById('fill-feedback').innerHTML = '';
+        }
+
+        function checkFillAnswer() {
+            const q = fillQuestions[currentQuestion];
+            const userAnswer = document.getElementById('fill-answer').value.trim().toLowerCase();
+            const correctAnswer = q.answer.toLowerCase();
+            
+            if (userAnswer === correctAnswer) {
+                score++;
+                document.getElementById('fill-feedback').innerHTML = 
+                    `<div class="feedback correct">✅ Chính xác! ${q.explanation}</div>`;
+            } else {
+                document.getElementById('fill-feedback').innerHTML = 
+                    `<div class="feedback incorrect">❌ Sai rồi. Đáp án đúng: <strong>${q.answer}</strong><br>${q.explanation}</div>`;
+            }
+
+            document.getElementById('fill-score').textContent = score;
+            
+            setTimeout(() => {
+                currentQuestion++;
+                showFillQuestion();
+            }, 2000);
+        }
+
+        function showResults() {
+            document.querySelectorAll('.game-area').forEach(area => area.classList.remove('active'));
+            document.getElementById('results').classList.add('active');
+            
+            const percentage = Math.round((score / totalQuestions) * 100);
+            document.getElementById('final-score').textContent = `${score}/${totalQuestions} (${percentage}%)`;
+            
+            // Star rating
+            const stars = Math.ceil(percentage / 20);
+            let starHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                starHTML += `<span class="star ${i <= stars ? 'filled' : ''}">⭐</span>`;
+            }
+            document.getElementById('star-rating').innerHTML = starHTML;
+            
+            // Achievements and feedback
+            let achievements = '';
+            let feedback = '';
+            
+            if (percentage >= 90) {
+                achievements = '<div class="achievement">🏆 Xuất sắc! Bạn đã thành thạo Present Simple!</div>';
+                feedback = 'Tuyệt vời! Bạn đã hiểu rất rõ về thì hiện tại đơn.';
+            } else if (percentage >= 70) {
+                achievements = '<div class="achievement">🥈 Tốt lắm! Bạn đã nắm được cơ bản!</div>';
+                feedback = 'Khá tốt! Hãy xem lại một số điểm chưa chắc chắn.';
+            } else if (percentage >= 50) {
+                achievements = '<div class="achievement">🥉 Cần cố gắng thêm!</div>';
+                feedback = 'Bạn cần ôn lại lý thuyết và luyện tập thêm.';
+            } else {
+                feedback = 'Đừng nản lòng! Hãy xem lại bài học và thử lại.';
+            }
+            
+            document.getElementById('achievements').innerHTML = achievements;
+            document.getElementById('feedback-message').innerHTML = `<p><strong>${feedback}</strong></p>`;
+        }
+
+        function resetGame() {
+            document.querySelectorAll('.game-area').forEach(area => area.classList.remove('active'));
+            document.getElementById('game-menu').style.display = 'block';
+            currentQuestion = 0;
+            score = 0;
+        }
+
+        // Enter key support for fill game
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.getElementById('fill-game').classList.contains('active')) {
+                checkFillAnswer();
+            }
+        });
+    </script>
+
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery</p>
+    </footer>
+</body>
+</html>

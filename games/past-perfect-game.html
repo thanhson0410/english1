@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Game Thì Quá Khứ Hoàn Thành - English Grammar</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .question-text {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 15px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.6);
+            transform: translateY(-3px);
+        }
+        
+        .option-btn.correct {
+            background: #4CAF50;
+            border-color: #45a049;
+            animation: correctPulse 0.6s ease;
+        }
+        
+        .option-btn.incorrect {
+            background: #f44336;
+            border-color: #da190b;
+            animation: incorrectShake 0.6s ease;
+        }
+        
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .score-board {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .score-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            min-height: 50px;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .navigation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            margin: 0 10px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            min-height: 45px;
+            line-height: 45px;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .question-text {
+                font-size: 1.2em;
+            }
+            
+            .option-btn {
+                padding: 12px 15px;
+                font-size: 1em;
+                min-height: 50px;
+            }
+            
+            .score-board {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-btn {
+                display: block;
+                margin: 10px 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>✨ Game Thì Quá Khứ Hoàn Thành</h1>
+            <p>Làm chủ Past Perfect Tense - diễn tả hành động xảy ra trước hành động khác trong quá khứ</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="game-container">
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="score-number" id="currentQuestion">1</div>
+                    <div class="score-label">Câu hỏi</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="score">0</div>
+                    <div class="score-label">Điểm số</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="streak">0</div>
+                    <div class="score-label">Chuỗi đúng</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div class="question-card" id="questionCard">
+                <div class="question-text" id="questionText"></div>
+                <div class="options-grid" id="optionsGrid"></div>
+                <button class="next-btn" id="nextBtn" style="display: none;">Câu tiếp theo</button>
+            </div>
+
+            <div class="result-card" id="resultCard" style="display: none;">
+                <h2>🎉 Hoàn thành!</h2>
+                <p>Điểm số cuối cùng: <span id="finalScore"></span>/20</p>
+                <p>Tỷ lệ chính xác: <span id="accuracy"></span>%</p>
+                <button class="next-btn" onclick="restartGame()">Chơi lại</button>
+            </div>
+
+            <div class="navigation-card">
+                <h3>🧭 Điều hướng</h3>
+                <a href="../grammar-lessons/past-perfect.html" class="nav-btn">📚 Bài học Thì Quá khứ Hoàn thành</a>
+                <a href="games.html" class="nav-btn">🎮 Tất cả Games</a>
+                <a href="../index.html" class="nav-btn">🏠 Trang chủ</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                question: "When I arrived, she ___ already left.",
+                options: ["has", "had", "have", "was"],
+                correct: 1,
+                explanation: "Dùng 'had left' để diễn tả hành động xảy ra trước thời điểm 'I arrived'"
+            },
+            {
+                question: "They ___ finished their homework before dinner.",
+                options: ["have", "had", "has", "were"],
+                correct: 1,
+                explanation: "Dùng 'had finished' cho hành động hoàn thành trước bữa tối"
+            },
+            {
+                question: "I realized I ___ forgotten my keys.",
+                options: ["have", "had", "has", "was"],
+                correct: 1,
+                explanation: "Dùng 'had forgotten' để diễn tả việc quên chìa khóa xảy ra trước khi nhận ra"
+            },
+            {
+                question: "After he ___ his breakfast, he went to work.",
+                options: ["has eaten", "had eaten", "ate", "was eating"],
+                correct: 1,
+                explanation: "Dùng 'had eaten' cho hành động xảy ra trước 'went to work'"
+            },
+            {
+                question: "The movie ___ started when we got to the cinema.",
+                options: ["has", "had", "have", "was"],
+                correct: 1,
+                explanation: "Dùng 'had started' vì phim bắt đầu trước khi chúng tôi đến rạp"
+            },
+            {
+                question: "She was tired because she ___ all night.",
+                options: ["has worked", "had worked", "worked", "was working"],
+                correct: 1,
+                explanation: "Dùng 'had worked' để giải thích nguyên nhân của việc mệt mỏi"
+            },
+            {
+                question: "By the time we arrived, the party ___.",
+                options: ["has ended", "had ended", "ended", "was ending"],
+                correct: 1,
+                explanation: "Dùng 'had ended' với 'by the time' để diễn tả hành động xảy ra trước"
+            },
+            {
+                question: "He told me he ___ never been to Paris before.",
+                options: ["has", "had", "have", "was"],
+                correct: 1,
+                explanation: "Dùng 'had never been' trong câu tường thuật về kinh nghiệm quá khứ"
+            },
+            {
+                question: "I ___ just finished reading when you called.",
+                options: ["have", "had", "has", "was"],
+                correct: 1,
+                explanation: "Dùng 'had just finished' cho hành động vừa hoàn thành trước cuộc gọi"
+            },
+            {
+                question: "The train ___ already left by 9 AM.",
+                options: ["has", "had", "have", "was"],
+                correct: 1,
+                explanation: "Dùng 'had already left' với mốc thời gian cụ thể trong quá khứ"
+            },
+            {
+                question: "After she ___ her homework, she watched TV.",
+                options: ["has done", "had done", "did", "was doing"],
+                correct: 1,
+                explanation: "Dùng 'had done' trong cấu trúc 'After + Past Perfect, Past Simple'"
+            },
+            {
+                question: "When the police arrived, the thieves ___.",
+                options: ["has escaped", "had escaped", "escaped", "were escaping"],
+                correct: 1,
+                explanation: "Dùng 'had escaped' vì việc trốn thoát xảy ra trước khi cảnh sát đến"
+            },
+            {
+                question: "I couldn't enter because I ___ my password.",
+                options: ["have forgotten", "had forgotten", "forgot", "was forgetting"],
+                correct: 1,
+                explanation: "Dùng 'had forgotten' để diễn tả nguyên nhân của việc không thể vào"
+            },
+            {
+                question: "Before he moved to London, he ___ in Manchester for 10 years.",
+                options: ["has lived", "had lived", "lived", "was living"],
+                correct: 1,
+                explanation: "Dùng 'had lived' với 'before' để diễn tả thời gian trước sự kiện khác"
+            },
+            {
+                question: "The children were excited because they ___ to the zoo before.",
+                options: ["have never been", "had never been", "never went", "were never going"],
+                correct: 1,
+                explanation: "Dùng 'had never been' để diễn tả kinh nghiệm trước thời điểm quá khứ"
+            },
+            {
+                question: "She realized she ___ the wrong bus.",
+                options: ["has taken", "had taken", "took", "was taking"],
+                correct: 1,
+                explanation: "Dùng 'had taken' cho hành động xảy ra trước khi nhận ra"
+            },
+            {
+                question: "By midnight, we ___ all the preparations.",
+                options: ["have completed", "had completed", "completed", "were completing"],
+                correct: 1,
+                explanation: "Dùng 'had completed' với 'by + thời gian trong quá khứ'"
+            },
+            {
+                question: "The game ___ already begun when we turned on the TV.",
+                options: ["has", "had", "have", "was"],
+                correct: 1,
+                explanation: "Dùng 'had already begun' vì trận đấu bắt đầu trước khi bật TV"
+            },
+            {
+                question: "After I ___ my coffee, I felt more awake.",
+                options: ["have drunk", "had drunk", "drank", "was drinking"],
+                correct: 1,
+                explanation: "Dùng 'had drunk' trong cấu trúc 'After + Past Perfect'"
+            },
+            {
+                question: "When we met, he told me he ___ from university.",
+                options: ["has graduated", "had graduated", "graduated", "was graduating"],
+                correct: 1,
+                explanation: "Dùng 'had graduated' trong câu tường thuật về sự kiện quá khứ"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let totalQuestions = questions.length;
+        let answered = false;
+
+        function displayQuestion() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById('questionText').innerHTML = question.question;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectOption(index);
+                optionsGrid.appendChild(button);
+            });
+            
+            document.getElementById('nextBtn').style.display = 'none';
+            answered = false;
+            updateProgressBar();
+        }
+
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option-btn');
+            
+            options.forEach((option, index) => {
+                option.style.pointerEvents = 'none';
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedIndex === question.correct) {
+                score += 5;
+                streak++;
+                showFeedback(true, question.explanation);
+            } else {
+                streak = 0;
+                showFeedback(false, question.explanation);
+            }
+            
+            updateScore();
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            const questionText = document.getElementById('questionText');
+            const feedbackHtml = `
+                <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                    <div style="font-size: 1.2em; margin-bottom: 10px;">
+                        ${isCorrect ? '✅ Chính xác!' : '❌ Sai rồi!'}
+                    </div>
+                    <div style="font-size: 1em; opacity: 0.9;">
+                        💡 ${explanation}
+                    </div>
+                </div>
+            `;
+            questionText.innerHTML += feedbackHtml;
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < totalQuestions) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            
+            const accuracy = Math.round((score / (totalQuestions * 5)) * 100);
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('accuracy').textContent = accuracy;
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            streak = 0;
+            answered = false;
+            
+            document.getElementById('questionCard').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+            
+            updateScore();
+            displayQuestion();
+        }
+
+        document.getElementById('nextBtn').onclick = nextQuestion;
+
+        // Khởi tạo game
+        displayQuestion();
+        updateScore();
+    </script>
+</body>
+</html>

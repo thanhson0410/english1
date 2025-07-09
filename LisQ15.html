@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chơi Luyện nghe Toàn diện</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.1.3/24/solid/css/heroicons.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f3f4f6;
+        }
+        #topic-list-container::-webkit-scrollbar { width: 5px; }
+        #topic-list-container::-webkit-scrollbar-track { background: #e5e7eb; }
+        #topic-list-container::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+        #topic-list-container::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        .topic-item { transition: all 0.3s ease-in-out; cursor: pointer; }
+        .topic-item:hover { background-color: #f0f0f0; transform: translateX(4px); }
+        .topic-item.playing { background-color: #fef9c3; border-right: 4px solid #facc15; color: #a16207; transform: translateX(4px); }
+        .topic-item.correct { background-color: #dcfce7; border-right: 4px solid #22c55e; color: #15803d; }
+        .topic-item.incorrect { background-color: #fee2e2; border-right: 4px solid #ef4444; color: #b91c1c; }
+
+        .option-btn { transition: all 0.2s ease-in-out; cursor: pointer; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .selected { border-color: #4f46e5; background-color: #eef2ff; box-shadow: 0 0 0 2px #a5b4fc; }
+        .correct-answer { background-color: #D1FAE5 !important; border-color: #10B981 !important; }
+        .incorrect-answer { background-color: #FEE2E2 !important; border-color: #EF4444 !important; }
+        #answer-section { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="w-full max-w-6xl mx-auto bg-white rounded-none md:rounded-2xl md:shadow-2xl md:my-4 flex flex-col md:flex-row h-screen md:h-auto md:min-h-[800px]">
+        
+        <div class="w-full md:w-1/3 lg:w-1/4 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-lg font-bold text-gray-800 text-center">Danh sách chủ đề</h2>
+            </div>
+            
+            <button id="topic-toggle-button" class="md:hidden flex justify-between items-center p-4 w-full text-left font-semibold text-indigo-700 bg-indigo-50 border-b border-indigo-200">
+                <span id="mobile-topic-title">Chọn chủ đề</span>
+                <i class="h-5 w-5 text-indigo-700 transition-transform" id="toggle-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
+                </i>
+            </button>
+            
+            <div id="topic-list-container" class="hidden md:block flex-grow overflow-y-auto p-2">
+                </div>
+        </div>
+
+        <div id="game-area" class="w-full md:w-2/3 lg:w-3/4 flex flex-col p-4 sm:p-6 md:p-8 overflow-y-auto">
+            <div class="flex-grow">
+                <h1 class="hidden md:block text-2xl md:text-3xl font-bold text-center text-gray-800">Trò Chơi Luyện Nghe</h1>
+                <h2 id="topic-title" class="text-xl md:text-2xl font-semibold text-center text-indigo-700 my-4"></h2>
+                
+                <div id="options-grid" class="flex flex-col gap-4"></div>
+                <div id="answer-section" class="mt-8 text-center hidden opacity-0 transform scale-95">
+                    <h3 id="result-title" class="text-2xl font-bold mb-4"></h3>
+                    <div id="result-details" class="space-y-3 text-gray-700"></div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center flex-shrink-0">
+                <button id="check-button" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
+                    Kiểm tra đáp án
+                </button>
+                <button id="reset-button" class="bg-gray-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-700 transition-all duration-300 hidden">
+                    Chơi lại chủ đề này
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allTopics = [
+            { title: "Chính trị", questions: [{ opinion: "B", text_en: "Young people are becoming more interested in politics", text_vi: "Giới trẻ ngày càng quan tâm đến chính trị hơn" }, { opinion: "M", text_en: "Social media has changed political activism", text_vi: "Phương tiện truyền thông xã hội đã thay đổi hoạt động chính trị" }, { opinion: "W", text_en: "People are better informed political issues", text_vi: "Mọi người được thông tin tốt hơn về các vấn đề chính trị" }, { opinion: "B", text_en: "More women are likely to participate in politics", text_vi: "Nhiều phụ nữ có khả năng tham gia chính trị hơn" }] },
+            { title: "Công nghệ & Thông tin", questions: [{ opinion: "M", text_en: "The future generation will fail to cope with new information", text_vi: "Thế hệ tương lai sẽ không thể tiếp thu được thông tin mới" }, { opinion: "W", text_en: "The information revolution will be good for the economy", text_vi: "Cuộc cách mạng thông tin sẽ tốt cho nền kinh tế" }, { opinion: "W", text_en: "No computer is superior to the human brain", text_vi: "Không có máy tính nào vượt trội hơn bộ não con người" }, { opinion: "B", text_en: "More should be done to protect individual privacy", text_vi: "Cần phải làm nhiều hơn nữa để bảo vệ quyền riêng tư cá nhân" }] },
+            { title: "Vẻ đẹp", questions: [{ opinion: "M", text_en: "people share the very similar ideas about beauty", text_vi: "mọi người chia sẻ những ý tưởng rất giống nhau về cái đẹp" }, { opinion: "W", text_en: "Views of beauty change over time", text_vi: "Quan điểm về vẻ đẹp thay đổi theo thời gian" }, { opinion: "B", text_en: "Beauty can found in unlikely places", text_vi: "Vẻ đẹp có thể tìm thấy ở những nơi không ngờ tới" }, { opinion: "W", text_en: "Traditional ideas of beauty are going to change", text_vi: "Những quan niệm truyền thống về cái đẹp sẽ thay đổi" }] },
+            { title: "Âm nhạc & Ca sĩ", questions: [{ opinion: "M", text_en: "Singers play a good role for young people", text_vi: "Ca sĩ đóng vai trò cao cho giới trẻ" }, { opinion: "B", text_en: "taste in music is a highly personal thing", text_vi: "hương vị trong âm nhạc là một điều rất cá nhân" }, { opinion: "W", text_en: "Music is a universal language", text_vi: "Âm nhạc là ngôn ngữ phổ quát" }, { opinion: "B", text_en: "Music can manipulate people's feelings", text_vi: "Âm nhạc có thể thao túng cảm xúc con người" }] },
+            { title: "Đại học", questions: [{ opinion: "B", text_en: "Technology helps make education more accessible", text_vi: "Công nghệ giúp giáo dục trở nên dễ tiếp cận hơn" }, { opinion: "M", text_en: "Social interaction is important", text_vi: "Tương tác xã hội rất quan trọng" }, { opinion: "W", text_en: "The diverse curriculum is not an advantage", text_vi: "Chương trình giảng dạy đa dạng không phải là lợi thế" }, { opinion: "M", text_en: "University competition should be encouraged", text_vi: "Nên khuyến khích cạnh tranh ở trường đại học" }] },
+            { title: "Diễn viên", questions: [{ opinion: "W", text_en: "Auditions are the most important of casting", text_vi: "Buổi thử giọng là quan trọng nhất trong quá trình casting" }, { opinion: "M", text_en: "Actors respond best to a strong script", text_vi: "Diễn viên phản ứng tốt nhất với một kịch bản hay" }, { opinion: "B", text_en: "Theatre acting and movie acting require different skills", text_vi: "Diễn xuất sân khấu và diễn xuất điện ảnh đòi hỏi những kỹ năng khác nhau" }, { opinion: "B", text_en: "Actors need to be praised", text_vi: "Diễn viên cần được khen ngợi" }] },
+            { title: "Internet", questions: [{ opinion: "B", text_en: "There is too much information on the Internet", text_vi: "Có quá nhiều thông tin trên Internet" }, { opinion: "W", text_en: "Finding information on the Internet requires skills", text_vi: "Tìm kiếm thông tin trên Internet đòi hỏi kỹ năng" }, { opinion: "W", text_en: "The use of the Internet affects the way we think", text_vi: "Việc sử dụng Internet ảnh hưởng đến cách chúng ta suy nghĩ" }, { opinion: "B", text_en: "The internet makes young people less patient", text_vi: "Internet khiến những người trẻ tuổi kém kiên nhẫn hơn" }] },
+            { title: "Nông nghiệp đô thị", questions: [{ opinion: "M", text_en: "Living space is more important than farming space", text_vi: "Không gian sống quan trọng hơn không gian canh tác" }, { opinion: "B", text_en: "Urban farming sites can be visually appealing", text_vi: "Các trang trại nông nghiệp đô thị có thể hấp dẫn trực quan" }, { opinion: "W", text_en: "Urban farming can benefit local economics", text_vi: "Nông nghiệp đô thị có thể mang lại lợi ích kinh tế địa phương" }, { opinion: "B", text_en: "Urban farming cannot meet food needs", text_vi: "Nông nghiệp đô thị không thể đáp ứng nhu cầu lương thực" }] },
+            { title: "Thay đổi nơi làm việc", questions: [{ opinion: "M", text_en: "Continuity is important when planning a career", text_vi: "Sự liên tục là quan trọng khi lập kế hoạch nghề nghiệp" }, { opinion: "W", text_en: "Job security cannot be guaranteed", text_vi: "An ninh việc làm không thể được đảm bảo" }, { opinion: "B", text_en: "Job satisfaction is important for motivator", text_vi: "Sự hài lòng trong công việc là quan trọng đối với động lực" }, { opinion: "M", text_en: "Technological improvement is good for the economy", text_vi: "Cải tiến công nghệ có lợi cho nền kinh tế" }] },
+            { title: "Trung tâm địa phương", questions: [{ opinion: "M", text_en: "Exhibitions should be different and diverse.", text_vi: "Các cuộc triển lãm nên khác biệt và đa dạng." }, { opinion: "B", text_en: "Traditional customs are gradually losing their significance.", text_vi: "Các phong tục truyền thống đang dần mất đi ý nghĩa của chúng." }, { opinion: "W", text_en: "Local festivals will disappear soon in the near future.", text_vi: "Các lễ hội địa phương sẽ sớm biến mất trong tương lai gần." }, { opinion: "W", text_en: "Schools are important to shaping future generations.", text_vi: "Trường học đóng vai trò quan trọng trong việc định hình các thế hệ tương lai." }] },
+            { title: "Thiết kế cộng đồng", questions: [{ opinion: "B", text_en: "Building design can influence people's behavior.", text_vi: "Thiết kế tòa nhà có thể ảnh hưởng đến hành vi của con người." }, { opinion: "W", text_en: "Creating community can take time.", text_vi: "Việc tạo ra cộng đồng có thể mất thời gian." }, { opinion: "M", text_en: "Work communities and social communities are the same.", text_vi: "Cộng đồng làm việc và cộng đồng xã hội là như nhau." }, { opinion: "M", text_en: "Technology has changed how community forms.", text_vi: "Công nghệ đã thay đổi cách hình thành cộng đồng." }] },
+            { title: "Nghệ thuật", questions: [{ opinion: "W", text_en: "Art is only suitable for the privileged few", text_vi: "Nghệ thuật chỉ phù hợp với một số ít người có đặc quyền" }, { opinion: "M", text_en: "The government should invest more in arts", text_vi: "Chính phủ nên đầu tư nhiều hơn vào nghệ thuật" }, { opinion: "B", text_en: "Children should be exposed to art early", text_vi: "Trẻ em nên được tiếp xúc với nghệ thuật sớm" }, { opinion: "M", text_en: "In the future, art will become more accessible", text_vi: "Trong tương lai, nghệ thuật sẽ trở nên dễ tiếp cận hơn" }] }
+        ];
+
+        const topicListContainer = document.getElementById('topic-list-container');
+        const topicToggleButton = document.getElementById('topic-toggle-button');
+        const mobileTopicTitle = document.getElementById('mobile-topic-title');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const topicTitleEl = document.getElementById('topic-title');
+        const optionsGrid = document.getElementById('options-grid');
+        const answerSection = document.getElementById('answer-section');
+        const resultTitle = document.getElementById('result-title');
+        const resultDetails = document.getElementById('result-details');
+        const checkButton = document.getElementById('check-button');
+        const resetButton = document.getElementById('reset-button');
+
+        let selectedAnswers = new Set();
+        let currentTopicIndex = 0;
+
+        function renderTopicList() {
+            topicListContainer.innerHTML = '';
+            allTopics.forEach((topic, index) => {
+                const item = document.createElement('div');
+                item.className = 'topic-item p-3 rounded-l-md font-medium text-gray-700';
+                item.textContent = `${index + 1}. ${topic.title}`;
+                item.dataset.index = index;
+                if (topic.result === 'correct') item.classList.add('correct');
+                if (topic.result === 'incorrect') item.classList.add('incorrect');
+                if (index === currentTopicIndex) {
+                    item.classList.add('playing');
+                }
+                item.onclick = () => selectTopic(index);
+                topicListContainer.appendChild(item);
+            });
+        }
+
+        function selectTopic(index) {
+            currentTopicIndex = index;
+            const topic = allTopics[index];
+            topicTitleEl.textContent = topic.title;
+            mobileTopicTitle.textContent = topic.title;
+            initializeGame(topic.questions);
+            renderTopicList();
+
+            // Collapse mobile list after selection
+            if (window.innerWidth < 768) {
+                topicListContainer.classList.add('hidden');
+                toggleIcon.classList.remove('rotate-180');
+            }
+        }
+
+        function initializeGame(questions) {
+            selectedAnswers.clear();
+            optionsGrid.innerHTML = '';
+            answerSection.classList.add('hidden', 'opacity-0', 'scale-95');
+            checkButton.classList.remove('hidden');
+            resetButton.classList.add('hidden');
+            checkButton.disabled = false;
+
+            questions.forEach((item, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn w-full text-left p-4 bg-white border-2 border-gray-200 rounded-lg focus:outline-none';
+                button.disabled = false;
+                
+                const textEn = document.createElement('span');
+                textEn.className = 'block text-gray-800 font-medium';
+                textEn.textContent = item.text_en;
+                
+                const textVi = document.createElement('span');
+                textVi.className = 'block text-indigo-700 italic text-sm mt-1';
+                textVi.textContent = item.text_vi;
+
+                button.appendChild(textEn);
+                button.appendChild(textVi);
+
+                button.dataset.index = index;
+                button.onclick = () => toggleSelection(index, button);
+                optionsGrid.appendChild(button);
+            });
+        }
+
+        function toggleSelection(index, button) {
+            if (button.disabled) return;
+            if (selectedAnswers.has(index)) {
+                selectedAnswers.delete(index);
+                button.classList.remove('selected');
+            } else {
+                selectedAnswers.add(index);
+                button.classList.add('selected');
+            }
+        }
+
+        function checkAnswers() {
+            checkButton.disabled = true;
+            const currentQuestions = allTopics[currentTopicIndex].questions;
+            const buttons = optionsGrid.querySelectorAll('button');
+            const correctIndices = new Set();
+            currentQuestions.forEach((item, index) => {
+                if (item.opinion === 'B') correctIndices.add(index);
+            });
+
+            let isFullyCorrect = correctIndices.size === selectedAnswers.size && [...correctIndices].every(index => selectedAnswers.has(index));
+
+            allTopics[currentTopicIndex].result = isFullyCorrect ? 'correct' : 'incorrect';
+            renderTopicList(); 
+
+            buttons.forEach(btn => {
+                const index = parseInt(btn.dataset.index);
+                btn.disabled = true;
+                btn.classList.remove('selected');
+                if (correctIndices.has(index)) {
+                    btn.classList.add('correct-answer');
+                } else if (selectedAnswers.has(index)) {
+                    btn.classList.add('incorrect-answer');
+                }
+            });
+
+            resultTitle.textContent = isFullyCorrect ? '🎉 Tuyệt vời!' : '🤔 Cố gắng hơn nhé!';
+            resultDetails.innerHTML = isFullyCorrect 
+                ? `<p>Bạn đã xác định chính xác tất cả các quan điểm chung.</p>`
+                : `<p>Đáp án đúng đã được tô màu xanh lá. Hãy xem lại nhé!</p>`;
+            
+            answerSection.classList.remove('hidden');
+            setTimeout(() => {
+                answerSection.classList.remove('opacity-0', 'scale-95');
+            }, 10);
+            
+            checkButton.classList.add('hidden');
+            resetButton.classList.remove('hidden');
+        }
+
+        function toggleTopicList() {
+            topicListContainer.classList.toggle('hidden');
+            toggleIcon.classList.toggle('rotate-180');
+        }
+
+        window.onload = () => {
+            selectTopic(0);
+            topicToggleButton.onclick = toggleTopicList;
+        };
+
+        checkButton.onclick = checkAnswers;
+        resetButton.onclick = () => selectTopic(currentTopicIndex);
+
+    </script>
+</body>
+</html>

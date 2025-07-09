@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Game Thì Quá Khứ Tiếp Diễn - English Grammar</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .question-text {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 15px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.6);
+            transform: translateY(-3px);
+        }
+        
+        .option-btn.correct {
+            background: #4CAF50;
+            border-color: #45a049;
+            animation: correctPulse 0.6s ease;
+        }
+        
+        .option-btn.incorrect {
+            background: #f44336;
+            border-color: #da190b;
+            animation: incorrectShake 0.6s ease;
+        }
+        
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .score-board {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .score-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            min-height: 50px;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .navigation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            margin: 0 10px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            min-height: 45px;
+            line-height: 45px;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .question-text {
+                font-size: 1.2em;
+            }
+            
+            .option-btn {
+                padding: 12px 15px;
+                font-size: 1em;
+                min-height: 50px;
+            }
+            
+            .score-board {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-btn {
+                display: block;
+                margin: 10px 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>⏰ Game Thì Quá Khứ Tiếp Diễn</h1>
+            <p>Thành thạo cách sử dụng Past Continuous Tense</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="game-container">
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="score-number" id="currentQuestion">1</div>
+                    <div class="score-label">Câu hỏi</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="score">0</div>
+                    <div class="score-label">Điểm số</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="streak">0</div>
+                    <div class="score-label">Chuỗi đúng</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div class="question-card" id="questionCard">
+                <div class="question-text" id="questionText"></div>
+                <div class="options-grid" id="optionsGrid"></div>
+                <button class="next-btn" id="nextBtn" style="display: none;">Câu tiếp theo</button>
+            </div>
+
+            <div class="result-card" id="resultCard" style="display: none;">
+                <h2>🎉 Hoàn thành!</h2>
+                <p>Điểm số cuối cùng: <span id="finalScore"></span>/20</p>
+                <p>Tỷ lệ chính xác: <span id="accuracy"></span>%</p>
+                <button class="next-btn" onclick="restartGame()">Chơi lại</button>
+            </div>
+
+            <div class="navigation-card">
+                <h3>🧭 Điều hướng</h3>
+                <a href="../grammar-lessons/past-continuous.html" class="nav-btn">📚 Bài học Thì Quá khứ Tiếp diễn</a>
+                <a href="games.html" class="nav-btn">🎮 Tất cả Games</a>
+                <a href="../index.html" class="nav-btn">🏠 Trang chủ</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                question: "At 8 PM yesterday, I ___ TV.",
+                options: ["watched", "was watching", "watch", "am watching"],
+                correct: 1,
+                explanation: "Dùng 'was watching' để diễn tả hành động đang diễn ra tại một thời điểm cụ thể trong quá khứ"
+            },
+            {
+                question: "She ___ when the phone rang.",
+                options: ["cooked", "was cooking", "cooks", "is cooking"],
+                correct: 1,
+                explanation: "Dùng 'was cooking' cho hành động đang diễn ra khi có hành động khác xen vào"
+            },
+            {
+                question: "What ___ you doing at 9 AM this morning?",
+                options: ["was", "were", "are", "is"],
+                correct: 1,
+                explanation: "Dùng 'were' với chủ ngữ 'you' trong câu hỏi thì quá khứ tiếp diễn"
+            },
+            {
+                question: "They ___ in the garden when it started to rain.",
+                options: ["worked", "were working", "work", "are working"],
+                correct: 1,
+                explanation: "Dùng 'were working' cho hành động đang diễn ra (số nhiều)"
+            },
+            {
+                question: "I ___ my homework while she was cooking dinner.",
+                options: ["did", "was doing", "do", "am doing"],
+                correct: 1,
+                explanation: "Dùng 'was doing' để diễn tả hai hành động cùng diễn ra song song trong quá khứ"
+            },
+            {
+                question: "The children ___ in the park all afternoon yesterday.",
+                options: ["played", "were playing", "play", "are playing"],
+                correct: 1,
+                explanation: "Dùng 'were playing' cho hành động kéo dài trong một khoảng thời gian trong quá khứ"
+            },
+            {
+                question: "He ___ to music when I called him.",
+                options: ["listened", "was listening", "listens", "is listening"],
+                correct: 1,
+                explanation: "Dùng 'was listening' cho hành động đang diễn ra khi có hành động khác xảy ra"
+            },
+            {
+                question: "We ___ about the project during lunch.",
+                options: ["talked", "were talking", "talk", "are talking"],
+                correct: 1,
+                explanation: "Dùng 'were talking' cho hành động diễn ra trong một khoảng thời gian cụ thể"
+            },
+            {
+                question: "It ___ heavily when we left the house.",
+                options: ["rained", "was raining", "rains", "is raining"],
+                correct: 1,
+                explanation: "Dùng 'was raining' cho hành động đang diễn ra tại thời điểm khác xảy ra"
+            },
+            {
+                question: "My brother ___ his car when I arrived.",
+                options: ["washed", "was washing", "washes", "is washing"],
+                correct: 1,
+                explanation: "Dùng 'was washing' cho hành động đang diễn ra khi có hành động khác xảy ra"
+            },
+            {
+                question: "The students ___ for the exam all last week.",
+                options: ["studied", "were studying", "study", "are studying"],
+                correct: 1,
+                explanation: "Dùng 'were studying' cho hành động kéo dài trong một khoảng thời gian dài"
+            },
+            {
+                question: "She ___ a book while waiting for the bus.",
+                options: ["read", "was reading", "reads", "is reading"],
+                correct: 1,
+                explanation: "Dùng 'was reading' cho hành động đang diễn ra trong khi chờ đợi"
+            },
+            {
+                question: "We ___ dinner when the electricity went out.",
+                options: ["had", "were having", "have", "are having"],
+                correct: 1,
+                explanation: "Dùng 'were having' cho hành động đang diễn ra khi có sự cố xảy ra"
+            },
+            {
+                question: "The dog ___ loudly last night.",
+                options: ["barked", "was barking", "barks", "is barking"],
+                correct: 1,
+                explanation: "Dùng 'was barking' cho hành động kéo dài trong quá khứ"
+            },
+            {
+                question: "I ___ of you when you called.",
+                options: ["thought", "was thinking", "think", "am thinking"],
+                correct: 1,
+                explanation: "Dùng 'was thinking' cho hành động đang diễn ra tại thời điểm được nhắc đến"
+            },
+            {
+                question: "They ___ soccer when it started to snow.",
+                options: ["played", "were playing", "play", "are playing"],
+                correct: 1,
+                explanation: "Dùng 'were playing' cho hành động đang diễn ra khi có thay đổi thời tiết"
+            },
+            {
+                question: "My mother ___ clothes while I was studying.",
+                options: ["ironed", "was ironing", "irons", "is ironing"],
+                correct: 1,
+                explanation: "Dùng 'was ironing' cho hai hành động diễn ra song song"
+            },
+            {
+                question: "The baby ___ when we entered the room.",
+                options: ["slept", "was sleeping", "sleeps", "is sleeping"],
+                correct: 1,
+                explanation: "Dùng 'was sleeping' cho hành động đang diễn ra khi có ai đó vào phòng"
+            },
+            {
+                question: "We ___ about our vacation plans all evening.",
+                options: ["discussed", "were discussing", "discuss", "are discussing"],
+                correct: 1,
+                explanation: "Dùng 'were discussing' cho hành động kéo dài cả buổi tối"
+            },
+            {
+                question: "The sun ___ when we woke up.",
+                options: ["shone", "was shining", "shines", "is shining"],
+                correct: 1,
+                explanation: "Dùng 'was shining' cho trạng thái đang diễn ra tại thời điểm thức dậy"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let totalQuestions = questions.length;
+        let answered = false;
+
+        function displayQuestion() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById('questionText').innerHTML = question.question;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectOption(index);
+                optionsGrid.appendChild(button);
+            });
+            
+            document.getElementById('nextBtn').style.display = 'none';
+            answered = false;
+            updateProgressBar();
+        }
+
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option-btn');
+            
+            options.forEach((option, index) => {
+                option.style.pointerEvents = 'none';
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedIndex === question.correct) {
+                score += 5;
+                streak++;
+                showFeedback(true, question.explanation);
+            } else {
+                streak = 0;
+                showFeedback(false, question.explanation);
+            }
+            
+            updateScore();
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            const questionText = document.getElementById('questionText');
+            const feedbackHtml = `
+                <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                    <div style="font-size: 1.2em; margin-bottom: 10px;">
+                        ${isCorrect ? '✅ Chính xác!' : '❌ Sai rồi!'}
+                    </div>
+                    <div style="font-size: 1em; opacity: 0.9;">
+                        💡 ${explanation}
+                    </div>
+                </div>
+            `;
+            questionText.innerHTML += feedbackHtml;
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < totalQuestions) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            
+            const accuracy = Math.round((score / (totalQuestions * 5)) * 100);
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('accuracy').textContent = accuracy;
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            streak = 0;
+            answered = false;
+            
+            document.getElementById('questionCard').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+            
+            updateScore();
+            displayQuestion();
+        }
+
+        document.getElementById('nextBtn').onclick = nextQuestion;
+
+        // Khởi tạo game
+        displayQuestion();
+        updateScore();
+    </script>
+</body>
+</html>

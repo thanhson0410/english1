@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Sử Dụng Trên Mobile</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .method { background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 10px; border-left: 5px solid #007bff; }
+        .warning { background: #fff3cd; padding: 15px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #ffc107; }
+        .success { background: #d4edda; padding: 15px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #28a745; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; }
+        .steps { counter-reset: step-counter; }
+        .step { counter-increment: step-counter; margin: 15px 0; padding-left: 30px; position: relative; }
+        .step::before { content: counter(step-counter); position: absolute; left: 0; top: 0; background: #007bff; color: white; width: 20px; height: 20px; border-radius: 50%; text-align: center; font-weight: bold; font-size: 12px; line-height: 20px; }
+    </style>
+</head>
+<body>
+    <h1>📱 Hướng Dẫn Chạy Website English Grammar Trên Mobile</h1>
+    
+    <div class="warning">
+        <h3>❌ Vấn Đề Thường Gặp</h3>
+        <p>Khi copy file HTML vào điện thoại và mở trực tiếp, các link navigation không hoạt động vì:</p>
+        <ul>
+            <li>Trình duyệt mobile chặn file:// protocol</li>
+            <li>Đường dẫn tương đối không được hỗ trợ trên file system</li>
+            <li>Hạn chế bảo mật của mobile browser</li>
+        </ul>
+    </div>
+
+    <h2>✅ Giải Pháp (Chọn 1 trong các cách sau):</h2>
+
+    <div class="method">
+        <h3>🌟 Phương Pháp 1: GitHub Pages (Khuyến nghị)</h3>
+        <div class="steps">
+            <div class="step">Tạo tài khoản GitHub tại <a href="https://github.com">github.com</a></div>
+            <div class="step">Tạo repository mới, đặt tên: <code>english-grammar</code></div>
+            <div class="step">Upload tất cả file vào repository</div>
+            <div class="step">Vào Settings → Pages → Source chọn "Deploy from a branch"</div>
+            <div class="step">Chọn branch "main" và folder "/ (root)"</div>
+            <div class="step">Website sẽ có link: <code>https://username.github.io/english-grammar</code></div>
+        </div>
+        <div class="success">
+            <strong>Ưu điểm:</strong> Miễn phí, ổn định, truy cập mọi lúc mọi nơi, có SSL
+        </div>
+    </div>
+
+    <div class="method">
+        <h3>🚀 Phương Pháp 2: Netlify</h3>
+        <div class="steps">
+            <div class="step">Truy cập <a href="https://netlify.com">netlify.com</a></div>
+            <div class="step">Đăng ký tài khoản miễn phí</div>
+            <div class="step">Kéo thả toàn bộ thư mục Aptis vào trang deploy</div>
+            <div class="step">Nhận link website ngay lập tức</div>
+        </div>
+        <div class="success">
+            <strong>Ưu điểm:</strong> Drag & drop đơn giản, deploy tức thì
+        </div>
+    </div>
+
+    <div class="method">
+        <h3>💻 Phương Pháp 3: Local Server (Máy tính + Mobile cùng WiFi)</h3>
+        <div class="steps">
+            <div class="step">Đảm bảo máy tính và điện thoại cùng mạng WiFi</div>
+            <div class="step">Trên máy tính, mở CMD/Terminal tại thư mục Aptis</div>
+            <div class="step">Chạy lệnh: <div class="code">python -m http.server 8000</div> hoặc <div class="code">python start_server.py</div></div>
+            <div class="step">Xem IP máy tính: <div class="code">ipconfig</div> (Windows) hoặc <div class="code">ifconfig</div> (Mac/Linux)</div>
+            <div class="step">Trên điện thoại, mở browser và truy cập: <code>http://[IP-máy-tính]:8000</code></div>
+        </div>
+        <div class="success">
+            <strong>Ưu điểm:</strong> Test local, không cần internet
+        </div>
+    </div>
+
+    <div class="method">
+        <h3>📲 Phương Pháp 4: Mobile Server App</h3>
+        <div class="steps">
+            <div class="step"><strong>Android:</strong> Cài app "Simple HTTP Server" hoặc "Termux"</div>
+            <div class="step"><strong>iOS:</strong> Cài app "HTTP Server" hoặc "Working Copy"</div>
+            <div class="step">Copy file vào thư mục app</div>
+            <div class="step">Start server và truy cập localhost</div>
+        </div>
+    </div>
+
+    <h2>🔧 Nếu Vẫn Gặp Lỗi Navigation:</h2>
+    
+    <div class="method">
+        <h3>Kiểm tra cấu trúc thư mục:</h3>
+        <div class="code">
+Aptis/
+├── index.html
+├── style.css
+├── grammar-lessons/
+│   ├── lessons.html
+│   ├── present-simple.html
+│   └── ...
+└── games/
+    ├── games.html
+    ├── quiz.html
+    └── ...
+        </div>
+        <p>Đảm bảo cấu trúc thư mục đúng như trên và tất cả file đều được copy đầy đủ.</p>
+    </div>
+
+    <div class="warning">
+        <h3>⚠️ Lưu Ý Quan Trọng</h3>
+        <ul>
+            <li>Không thể chạy trực tiếp file HTML trên mobile</li>
+            <li>Cần sử dụng web server (local hoặc online)</li>
+            <li>GitHub Pages là giải pháp tốt nhất cho long-term</li>
+            <li>Nếu chỉ test, dùng Netlify drag & drop nhanh nhất</li>
+        </ul>
+    </div>
+
+    <div class="success">
+        <h3>✅ Sau Khi Setup Thành Công</h3>
+        <p>Website sẽ hoạt động hoàn hảo trên mobile với:</p>
+        <ul>
+            <li>Navigation mượt mà giữa các trang</li>
+            <li>Responsive design tối ưu cho điện thoại</li>
+            <li>Touch-friendly interface</li>
+            <li>Tất cả games và lessons đều accessible</li>
+        </ul>
+    </div>
+
+    <hr>
+    <p><em>Cần hỗ trợ? Liên hệ để được hướng dẫn chi tiết hơn!</em></p>
+</body>
+</html>

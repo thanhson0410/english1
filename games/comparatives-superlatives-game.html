@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Comparatives & Superlatives Game | English Grammar</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">🎓 English Grammar</a>
+            <div class="nav-links">
+                <a href="../grammar-lessons/lessons.html">📚 Lessons</a>
+                <a href="games.html">🎮 Games</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="game-container">
+            <header class="game-header">
+                <h1>📊 Comparison Champion</h1>
+                <p class="game-subtitle">Master comparatives and superlatives!</p>
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Score:</span>
+                        <span id="score" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Round:</span>
+                        <span id="round" class="stat-value">1</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Lives:</span>
+                        <span id="lives" class="stat-value">❤️❤️❤️</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="game-modes">
+                <button class="mode-btn active" onclick="setMode('formation')">🔨 Form Comparatives</button>
+                <button class="mode-btn" onclick="setMode('usage')">🎯 Choose Correct Form</button>
+                <button class="mode-btn" onclick="setMode('sentence')">📝 Complete Sentences</button>
+                <button class="mode-btn" onclick="setMode('challenge')">⚡ Speed Challenge</button>
+            </div>
+
+            <div id="game-area" class="game-area">
+                <div id="progress-bar" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div id="progress-text" class="progress-text">Question 1 of 10</div>
+                </div>
+
+                <div id="question-container" class="question-container">
+                    <div id="difficulty-indicator" class="difficulty-indicator"></div>
+                    <div id="question-text" class="question-text"></div>
+                    <div id="visual-comparison" class="visual-comparison"></div>
+                    <div id="options-container" class="options-container"></div>
+                    <div id="input-container" class="input-container hidden"></div>
+                </div>
+
+                <div id="feedback" class="feedback hidden"></div>
+                
+                <div class="game-controls">
+                    <button id="hint-btn" class="hint-btn" onclick="showHint()">💡 Hint</button>
+                    <button id="next-btn" class="action-btn hidden" onclick="nextQuestion()">Next ➡️</button>
+                </div>
+            </div>
+
+            <div id="game-over" class="game-over hidden">
+                <h2>🏆 Game Complete!</h2>
+                <div class="final-stats">
+                    <p>Final Score: <span id="final-score"></span></p>
+                    <p>Questions Answered: <span id="questions-answered"></span></p>
+                    <p>Accuracy: <span id="accuracy"></span>%</p>
+                    <p>Highest Round: <span id="highest-round"></span></p>
+                    <p id="performance-message"></p>
+                </div>
+                <div class="badges" id="badges"></div>
+                <div class="game-over-actions">
+                    <button onclick="restartGame()" class="action-btn">🔄 Play Again</button>
+                    <a href="../grammar-lessons/comparatives-superlatives.html" class="action-btn">📚 Review Lesson</a>
+                    <a href="games.html" class="action-btn">🎮 Other Games</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questions = {
+            formation: [
+                {
+                    question: "Form the comparative of: TALL",
+                    type: "input",
+                    answer: ["taller"],
+                    hint: "Add -er to short adjectives",
+                    difficulty: "easy",
+                    explanation: "TALL is a one-syllable adjective. Add -er to form the comparative."
+                },
+                {
+                    question: "Form the superlative of: BEAUTIFUL",
+                    type: "input",
+                    answer: ["the most beautiful", "most beautiful"],
+                    hint: "Use 'most' with long adjectives",
+                    difficulty: "medium",
+                    explanation: "BEAUTIFUL has 3 syllables. Use 'the most' + adjective for superlative."
+                },
+                {
+                    question: "Form the comparative of: GOOD",
+                    type: "input",
+                    answer: ["better"],
+                    hint: "This is an irregular adjective",
+                    difficulty: "medium",
+                    explanation: "GOOD is irregular: good → better → best"
+                },
+                {
+                    question: "Form the superlative of: BIG",
+                    type: "input",
+                    answer: ["the biggest", "biggest"],
+                    hint: "Double the consonant and add -est",
+                    difficulty: "medium",
+                    explanation: "BIG follows the pattern: consonant+vowel+consonant → double final consonant + -est"
+                },
+                {
+                    question: "Form the comparative of: HAPPY",
+                    type: "input",
+                    answer: ["happier"],
+                    hint: "Change 'y' to 'i' and add -er",
+                    difficulty: "medium",
+                    explanation: "For adjectives ending in 'y', change 'y' to 'i' and add -er"
+                }
+            ],
+            usage: [
+                {
+                    question: "This book is _____ than that one.",
+                    options: ["more interesting", "most interesting", "interestinger", "the more interesting"],
+                    correct: 0,
+                    hint: "Use comparative form for comparing two things",
+                    difficulty: "easy",
+                    explanation: "Compare two things with 'more + adjective' for long adjectives",
+                    visual: "📚 vs 📖"
+                },
+                {
+                    question: "Mount Everest is _____ mountain in the world.",
+                    options: ["higher", "the highest", "more high", "most high"],
+                    correct: 1,
+                    hint: "Use superlative for comparing among many",
+                    difficulty: "easy",
+                    explanation: "Use superlative (the + -est) when comparing among three or more",
+                    visual: "🏔️🏔️🏔️ (one is tallest)"
+                },
+                {
+                    question: "She is _____ student in the class.",
+                    options: ["good", "better", "the best", "more good"],
+                    correct: 2,
+                    hint: "GOOD has irregular forms",
+                    difficulty: "medium",
+                    explanation: "Irregular superlative: good → the best",
+                    visual: "👩‍🎓 (among many students)"
+                },
+                {
+                    question: "Today is _____ than yesterday.",
+                    options: ["more hot", "hotter", "hottest", "the hotter"],
+                    correct: 1,
+                    hint: "One-syllable adjective with specific pattern",
+                    difficulty: "medium",
+                    explanation: "HOT: consonant+vowel+consonant → double 't' + -er",
+                    visual: "🌡️ Today > Yesterday"
+                }
+            ],
+            sentence: [
+                {
+                    question: "Complete: My house is _____ big _____ yours.",
+                    type: "dropdown",
+                    blanks: [
+                        {options: ["as", "more", "so", "than"], correct: 0},
+                        {options: ["as", "than", "of", "from"], correct: 0}
+                    ],
+                    hint: "This shows equality",
+                    difficulty: "medium",
+                    explanation: "Use 'as...as' for equality comparison",
+                    visual: "🏠 = 🏘️"
+                },
+                {
+                    question: "Complete: This is _____ expensive restaurant _____ the city.",
+                    type: "dropdown",
+                    blanks: [
+                        {options: ["the most", "more", "most", "the more"], correct: 0},
+                        {options: ["in", "of", "at", "on"], correct: 0}
+                    ],
+                    hint: "Superlative form with location",
+                    difficulty: "hard",
+                    explanation: "Superlative: 'the most' + adjective + 'in' + place",
+                    visual: "🍽️💰 (in a city)"
+                }
+            ],
+            challenge: [
+                {
+                    question: "Quick! Comparative of FAR:",
+                    type: "speed",
+                    options: ["farer", "farther", "more far", "farthest"],
+                    correct: 1,
+                    difficulty: "hard",
+                    timeLimit: 5,
+                    explanation: "FAR → farther/further (comparative)"
+                },
+                {
+                    question: "Quick! Superlative of LITTLE:",
+                    type: "speed",
+                    options: ["littlest", "the least", "less", "more little"],
+                    correct: 1,
+                    difficulty: "hard",
+                    timeLimit: 5,
+                    explanation: "LITTLE → the least (superlative)"
+                }
+            ]
+        };
+
+        let currentMode = 'formation';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let round = 1;
+        let lives = 3;
+        let questionsAnswered = 0;
+        let correctAnswers = 0;
+        let currentQuestions = [];
+        let speedTimer = null;
+        let hintsUsed = 0;
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            restartGame();
+        }
+
+        function initGame() {
+            currentQuestions = [...questions[currentMode]];
+            // Shuffle questions
+            currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            round = 1;
+            lives = 3;
+            questionsAnswered = 0;
+            correctAnswers = 0;
+            hintsUsed = 0;
+            
+            updateStats();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                if (lives > 0) {
+                    // Next round
+                    round++;
+                    currentQuestionIndex = 0;
+                    currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
+                    updateStats();
+                } else {
+                    endGame();
+                    return;
+                }
+            }
+
+            if (lives <= 0) {
+                endGame();
+                return;
+            }
+
+            const question = currentQuestions[currentQuestionIndex];
+            
+            // Update progress
+            const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = 
+                `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+            
+            // Show difficulty
+            const difficultyIndicator = document.getElementById('difficulty-indicator');
+            difficultyIndicator.textContent = `Difficulty: ${question.difficulty.toUpperCase()}`;
+            difficultyIndicator.className = `difficulty-indicator ${question.difficulty}`;
+            
+            // Show question
+            document.getElementById('question-text').textContent = question.question;
+            
+            // Show visual if available
+            const visualContainer = document.getElementById('visual-comparison');
+            if (question.visual) {
+                visualContainer.innerHTML = `<div class="visual-hint">${question.visual}</div>`;
+                visualContainer.style.display = 'block';
+            } else {
+                visualContainer.style.display = 'none';
+            }
+            
+            // Clear containers
+            document.getElementById('options-container').innerHTML = '';
+            document.getElementById('input-container').innerHTML = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            
+            // Show appropriate input method
+            if (question.type === 'input') {
+                showInputQuestion(question);
+            } else if (question.type === 'dropdown') {
+                showDropdownQuestion(question);
+            } else if (question.type === 'speed') {
+                showSpeedQuestion(question);
+            } else {
+                showMultipleChoice(question);
+            }
+        }
+
+        function showInputQuestion(question) {
+            const container = document.getElementById('input-container');
+            container.classList.remove('hidden');
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'answer-input';
+            input.placeholder = 'Type your answer here...';
+            input.onkeypress = (e) => {
+                if (e.key === 'Enter') {
+                    checkInputAnswer(input.value.trim());
+                }
+            };
+            
+            const submitBtn = document.createElement('button');
+            submitBtn.className = 'option-btn submit-btn';
+            submitBtn.textContent = 'Submit Answer';
+            submitBtn.onclick = () => checkInputAnswer(input.value.trim());
+            
+            container.appendChild(input);
+            container.appendChild(submitBtn);
+            input.focus();
+        }
+
+        function showDropdownQuestion(question) {
+            const container = document.getElementById('options-container');
+            let questionHTML = question.question;
+            
+            question.blanks.forEach((blank, index) => {
+                const select = document.createElement('select');
+                select.className = 'dropdown-select';
+                select.id = `blank-${index}`;
+                
+                blank.options.forEach((option, optIndex) => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = optIndex;
+                    optionElement.textContent = option;
+                    select.appendChild(optionElement);
+                });
+                
+                questionHTML = questionHTML.replace('_____', `<span id="dropdown-${index}"></span>`);
+            });
+            
+            document.getElementById('question-text').innerHTML = questionHTML;
+            
+            question.blanks.forEach((blank, index) => {
+                const placeholder = document.getElementById(`dropdown-${index}`);
+                const select = document.getElementById(`blank-${index}`);
+                placeholder.appendChild(select);
+            });
+            
+            const submitBtn = document.createElement('button');
+            submitBtn.className = 'option-btn submit-btn';
+            submitBtn.textContent = 'Submit Answer';
+            submitBtn.onclick = () => checkDropdownAnswer(question);
+            container.appendChild(submitBtn);
+        }
+
+        function showSpeedQuestion(question) {
+            const container = document.getElementById('options-container');
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn speed-btn';
+                button.textContent = option;
+                button.onclick = () => {
+                    clearTimeout(speedTimer);
+                    checkAnswer(index, question);
+                };
+                container.appendChild(button);
+            });
+            
+            // Start countdown
+            let timeLeft = question.timeLimit;
+            const timerDisplay = document.createElement('div');
+            timerDisplay.className = 'speed-timer';
+            timerDisplay.textContent = `⏰ ${timeLeft}s`;
+            container.appendChild(timerDisplay);
+            
+            speedTimer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `⏰ ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(speedTimer);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function showMultipleChoice(question) {
+            const container = document.getElementById('options-container');
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index, question);
+                container.appendChild(button);
+            });
+        }
+
+        function checkInputAnswer(userAnswer) {
+            const question = currentQuestions[currentQuestionIndex];
+            const isCorrect = question.answer.some(answer => 
+                userAnswer.toLowerCase() === answer.toLowerCase()
+            );
+            
+            processAnswer(isCorrect, question, userAnswer);
+        }
+
+        function checkDropdownAnswer(question) {
+            let allCorrect = true;
+            
+            question.blanks.forEach((blank, index) => {
+                const select = document.getElementById(`blank-${index}`);
+                if (parseInt(select.value) !== blank.correct) {
+                    allCorrect = false;
+                }
+            });
+            
+            processAnswer(allCorrect, question);
+        }
+
+        function checkAnswer(selectedIndex, question) {
+            const isCorrect = selectedIndex === question.correct;
+            processAnswer(isCorrect, question);
+        }
+
+        function processAnswer(isCorrect, question, userAnswer = null) {
+            questionsAnswered++;
+            
+            if (isCorrect) {
+                correctAnswers++;
+                const points = calculatePoints(question);
+                score += points;
+                showFeedback(`🎉 Correct! +${points} points`, true, question.explanation);
+            } else {
+                lives--;
+                let correctAnswer = '';
+                if (question.answer) {
+                    correctAnswer = question.answer[0];
+                } else if (question.options) {
+                    correctAnswer = question.options[question.correct];
+                }
+                showFeedback(`❌ Incorrect! Correct answer: ${correctAnswer}`, false, question.explanation);
+            }
+            
+            updateStats();
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function timeUp() {
+            lives--;
+            questionsAnswered++;
+            showFeedback('⏰ Time\'s up!', false, currentQuestions[currentQuestionIndex].explanation);
+            updateStats();
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function calculatePoints(question) {
+            let basePoints = 10;
+            
+            // Difficulty bonus
+            if (question.difficulty === 'medium') basePoints += 5;
+            if (question.difficulty === 'hard') basePoints += 10;
+            
+            // Round bonus
+            basePoints += (round - 1) * 2;
+            
+            // Speed bonus for speed questions
+            if (question.type === 'speed') basePoints += 15;
+            
+            return basePoints;
+        }
+
+        function showFeedback(message, isCorrect, explanation = '') {
+            const feedback = document.getElementById('feedback');
+            feedback.innerHTML = `
+                <div class="feedback-message ${isCorrect ? 'correct' : 'incorrect'}">${message}</div>
+                ${explanation ? `<div class="feedback-explanation">💡 ${explanation}</div>` : ''}
+            `;
+            feedback.classList.remove('hidden');
+        }
+
+        function showHint() {
+            const question = currentQuestions[currentQuestionIndex];
+            if (question.hint) {
+                hintsUsed++;
+                const hintDiv = document.createElement('div');
+                hintDiv.className = 'hint-display';
+                hintDiv.innerHTML = `💡 Hint: ${question.hint}`;
+                document.getElementById('question-container').appendChild(hintDiv);
+                
+                document.getElementById('hint-btn').disabled = true;
+                document.getElementById('hint-btn').textContent = '💡 Hint Used';
+                
+                setTimeout(() => {
+                    if (hintDiv.parentNode) {
+                        hintDiv.parentNode.removeChild(hintDiv);
+                    }
+                }, 5000);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            // Reset hint button
+            document.getElementById('hint-btn').disabled = false;
+            document.getElementById('hint-btn').textContent = '💡 Hint';
+            
+            showQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('round').textContent = round;
+            
+            const hearts = '❤️'.repeat(lives) + '🖤'.repeat(3 - lives);
+            document.getElementById('lives').textContent = hearts;
+        }
+
+        function endGame() {
+            clearTimeout(speedTimer);
+            
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-over').classList.remove('hidden');
+            
+            const accuracy = questionsAnswered > 0 ? Math.round((correctAnswers / questionsAnswered) * 100) : 0;
+            
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('questions-answered').textContent = questionsAnswered;
+            document.getElementById('accuracy').textContent = accuracy;
+            document.getElementById('highest-round').textContent = round;
+            
+            // Performance message
+            let message = '';
+            if (accuracy >= 90) {
+                message = '🏆 Comparison Master! You\'ve mastered the art of comparison!';
+            } else if (accuracy >= 75) {
+                message = '🌟 Excellent! You have great comparison skills!';
+            } else if (accuracy >= 60) {
+                message = '👍 Good work! Keep practicing comparatives and superlatives!';
+            } else {
+                message = '📚 Keep studying! Review the lesson and try again!';
+            }
+            
+            document.getElementById('performance-message').textContent = message;
+            
+            showBadges();
+        }
+
+        function showBadges() {
+            const badges = [];
+            
+            if (round >= 3) badges.push('🚀 Round Warrior - Reached round 3!');
+            if (correctAnswers >= 10) badges.push('🎯 Accuracy Expert - 10+ correct answers!');
+            if (score >= 200) badges.push('💎 High Scorer - 200+ points!');
+            if (hintsUsed === 0 && correctAnswers >= 5) badges.push('🧠 Independent Learner - No hints needed!');
+            if (currentMode === 'challenge') badges.push('⚡ Speed Demon - Completed speed challenge!');
+            
+            const badgesContainer = document.getElementById('badges');
+            if (badges.length > 0) {
+                badgesContainer.innerHTML = `
+                    <h3>🏅 Badges Earned:</h3>
+                    ${badges.map(badge => `<div class="badge">${badge}</div>`).join('')}
+                `;
+            }
+        }
+
+        function restartGame() {
+            clearTimeout(speedTimer);
+            
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('game-over').classList.add('hidden');
+            
+            initGame();
+        }
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+
+    <style>
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 2px solid #6366f1;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #6366f1;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            color: #1f2937;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .game-modes {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .mode-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .progress-container {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            font-weight: bold;
+            color: #6366f1;
+        }
+
+        .question-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .difficulty-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .difficulty-indicator.easy {
+            background: #dcfce7;
+            color: #15803d;
+            border: 2px solid #22c55e;
+        }
+
+        .difficulty-indicator.medium {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+
+        .difficulty-indicator.hard {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+            margin-top: 2rem;
+        }
+
+        .visual-comparison {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .visual-hint {
+            font-size: 1.5rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border-radius: 10px;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+            display: inline-block;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-container {
+            margin-bottom: 1rem;
+        }
+
+        .option-btn {
+            padding: 1.2rem;
+            border: 3px solid #e5e7eb;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: #6366f1;
+            background: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.speed-btn {
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        .option-btn.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+
+        .option-btn.incorrect {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+
+        .submit-btn {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #5856eb;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 3px solid #e5e7eb;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .dropdown-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin: 0 0.5rem;
+            background: white;
+        }
+
+        .speed-timer {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ef4444;
+            animation: blink 1s infinite;
+        }
+
+        .feedback {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-message {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-message.correct {
+            color: #15803d;
+        }
+
+        .feedback-message.incorrect {
+            color: #dc2626;
+        }
+
+        .feedback-explanation {
+            font-size: 1rem;
+            color: #1e40af;
+            background: #f0f9ff;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid #3b82f6;
+        }
+
+        .hint-display {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid #f59e0b;
+            margin: 1rem 0;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .game-controls {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .hint-btn {
+            padding: 0.6rem 1.5rem;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .hint-btn:hover:not(:disabled) {
+            background: #d97706;
+        }
+
+        .hint-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .action-btn {
+            padding: 0.75rem 2rem;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5856eb;
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .final-stats {
+            margin: 2rem 0;
+        }
+
+        .final-stats p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+        }
+
+        .badges {
+            margin: 2rem 0;
+        }
+
+        .badges h3 {
+            color: #6366f1;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            border-radius: 20px;
+            border: 2px solid #d97706;
+            display: inline-block;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .game-over-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.02); }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile optimizations for iPhone 15 Pro Max */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1rem;
+            }
+
+            .game-stats {
+                gap: 1rem;
+            }
+
+            .stat-item {
+                padding: 0.4rem 0.8rem;
+                min-width: 70px;
+            }
+
+            .mode-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .question-container {
+                padding: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+                margin-top: 1rem;
+            }
+
+            .difficulty-indicator {
+                position: static;
+                display: inline-block;
+                margin-bottom: 1rem;
+            }
+
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+
+            .option-btn {
+                padding: 1rem;
+                min-height: 55px;
+            }
+
+            .game-over-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-stats {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .game-modes {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .mode-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .hint-btn {
+                margin-bottom: 1rem;
+                margin-right: 0;
+            }
+        }
+    </style>
+</body>
+</html>

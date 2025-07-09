@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Present Continuous Game - Luyện Tập Thì Hiện Tại Tiếp Diễn</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .time-indicator {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            animation: timeGlow 2s infinite ease-in-out;
+        }
+        
+        @keyframes timeGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255,107,107,0.5); }
+            50% { box-shadow: 0 0 20px rgba(255,107,107,0.8); }
+        }
+        
+        .verb-form-display {
+            background: #f8f9fa;
+            border: 3px solid #28a745;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .subject-verb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .subject-option {
+            background: #e3f2fd;
+            border: 3px solid #2196f3;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .subject-option:hover {
+            border-color: #1976d2;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(33,150,243,0.3);
+        }
+        
+        .subject-option.selected {
+            border-color: #1976d2;
+            background: #bbdefb;
+            transform: scale(1.05);
+        }
+        
+        .subject-option.correct {
+            border-color: #4caf50;
+            background: #c8e6c9;
+            animation: correctBounce 0.6s ease;
+        }
+        
+        .subject-option.incorrect {
+            border-color: #f44336;
+            background: #ffcdd2;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes correctBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        .ing-formation {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .ing-formation::before {
+            content: "💡 ING RULES";
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: #ffc107;
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .ing-rule {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .ing-rule .base {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        
+        .ing-rule .arrow {
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        .ing-rule .result {
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .situation-context {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .situation-context h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .picture-context {
+            background: #f3e5f5;
+            border: 3px solid #9c27b0;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .picture-context::before {
+            content: "📸 PICTURE DESCRIPTION";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #9c27b0;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .picture-emoji {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+        
+        .sentence-building {
+            background: white;
+            border: 3px solid #ff5722;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .sentence-parts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+        
+        .sentence-part {
+            background: #ffecb3;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #e65100;
+            border: 2px solid #ffc107;
+        }
+        
+        .sentence-blank {
+            background: #ffcdd2;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 3px dashed #f44336;
+            color: #d32f2f;
+            font-weight: bold;
+            min-width: 100px;
+            text-align: center;
+            animation: blinkBorder 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes blinkBorder {
+            0%, 100% { border-color: #f44336; }
+            50% { border-color: #ff8a80; }
+        }
+        
+        .negative-positive-toggle {
+            display: flex;
+            background: #f5f5f5;
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px auto;
+            max-width: 300px;
+        }
+        
+        .toggle-option {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .toggle-option.active {
+            background: #2196f3;
+            color: white;
+            box-shadow: 0 3px 10px rgba(33,150,243,0.3);
+        }
+        
+        .timer-circle {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #2196f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: #2196f3;
+        }
+        
+        .quick-tip {
+            background: #e1f5fe;
+            border-left: 4px solid #0288d1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+        }
+        
+        .quick-tip::before {
+            content: "💡 ";
+            font-style: normal;
+        }
+        
+        @media (max-width: 768px) {
+            .subject-verb-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .subject-option {
+                min-height: 60px;
+                padding: 15px;
+            }
+            
+            .sentence-parts {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .picture-emoji {
+                font-size: 2.5em;
+            }
+            
+            .verb-form-display {
+                font-size: 1em;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⏰ Present Continuous Game</h1>
+        <p>Luyện Tập Thì Hiện Tại Tiếp Diễn</p>
+        <nav>
+            <ul>
+                <li><a href="../index.html">🏠 Trang Chủ</a></li>
+                <li><a href="../grammar-lessons/lessons.html">📚 Bài Học</a></li>
+                <li><a href="games.html">🎮 Trò Chơi</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="game-mode-selection" id="gameModeSection">
+            <h2>🎯 Chọn Chế Độ Luyện Tập</h2>
+            <div class="game-mode-grid">
+                <button class="game-mode-btn" onclick="startGame('basics')">
+                    <h3>🎓 Cơ Bản</h3>
+                    <p>am/is/are + V-ing</p>
+                    <small>Công thức cơ bản</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('ing-rules')">
+                    <h3>📝 Quy Tắc -ing</h3>
+                    <p>Cách thêm -ing vào động từ</p>
+                    <small>Spelling rules</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('situations')">
+                    <h3>🎭 Tình Huống</h3>
+                    <p>Áp dụng vào ngữ cảnh thực tế</p>
+                    <small>Real contexts</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('pictures')">
+                    <h3>📸 Mô Tả Hình Ảnh</h3>
+                    <p>Mô tả những gì đang xảy ra</p>
+                    <small>Visual description</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('negative')">
+                    <h3>❌ Câu Phủ Định</h3>
+                    <p>am/is/are + not + V-ing</p>
+                    <small>Negative forms</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('questions')">
+                    <h3>❓ Câu Hỏi</h3>
+                    <p>Am/Is/Are + S + V-ing?</p>
+                    <small>Question forms</small>
+                </button>
+            </div>
+        </section>
+
+        <section class="game-play" id="gamePlaySection" style="display: none;">
+            <div class="game-stats">
+                <div class="stat-card">
+                    <h4>📊 Điểm Số</h4>
+                    <div class="score" id="scoreDisplay">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>❓ Câu Hỏi</h4>
+                    <div id="questionNumber">1/10</div>
+                </div>
+                <div class="stat-card">
+                    <h4>🎯 Độ Chính Xác</h4>
+                    <div id="accuracyDisplay">100%</div>
+                </div>
+                <div class="stat-card">
+                    <h4>🔥 Streak</h4>
+                    <div id="streakDisplay">0</div>
+                </div>
+            </div>
+
+            <div class="time-indicator" id="timeIndicator">
+                ⏰ RIGHT NOW - Hành động đang xảy ra
+            </div>
+
+            <div class="question-container">
+                <h3 id="questionText">Chọn đáp án đúng:</h3>
+                
+                <div class="situation-context" id="situationContext" style="display: none;">
+                    <h4>🎭 Tình huống:</h4>
+                    <p id="situationText"></p>
+                </div>
+                
+                <div class="picture-context" id="pictureContext" style="display: none;">
+                    <div class="picture-emoji" id="pictureEmoji">🏃‍♂️</div>
+                    <p id="pictureDescription">Mô tả những gì bạn thấy trong hình</p>
+                </div>
+
+                <div class="sentence-building" id="sentenceBuilding">
+                    <div class="sentence-parts" id="sentenceParts">
+                        <span class="sentence-part" id="subjectPart">I</span>
+                        <span class="sentence-blank" id="verbPart">_____</span>
+                        <span class="sentence-part" id="objectPart">English</span>
+                    </div>
+                </div>
+
+                <div class="verb-form-display" id="verbFormDisplay" style="display: none;">
+                    Base Form: <span id="baseForm">work</span> → Present Continuous: <span id="ingForm">?</span>
+                </div>
+
+                <div class="ing-formation" id="ingFormation" style="display: none;">
+                    <div class="ing-rule">
+                        <span class="base" id="ruleBase">work</span>
+                        <span class="arrow">➡️</span>
+                        <span class="result" id="ruleResult">?</span>
+                    </div>
+                </div>
+
+                <div class="negative-positive-toggle" id="sentenceTypeToggle" style="display: none;">
+                    <div class="toggle-option active" data-type="positive">✅ Khẳng Định</div>
+                    <div class="toggle-option" data-type="negative">❌ Phủ Định</div>
+                </div>
+
+                <div class="subject-verb-grid" id="answerGrid"></div>
+
+                <div class="quick-tip" id="quickTip" style="display: none;">
+                    Nhớ rằng Present Continuous diễn tả hành động đang xảy ra ngay bây giờ!
+                </div>
+
+                <div class="explanation-box" id="explanationBox" style="display: none;">
+                    <h4>💡 Giải Thích:</h4>
+                    <p id="explanationText"></p>
+                    <div id="grammarRule"></div>
+                </div>
+
+                <div class="game-controls">
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                        Câu Tiếp Theo ➡️
+                    </button>
+                    <button class="btn btn-secondary" onclick="showHint()" id="hintBtn">
+                        💡 Gợi Ý
+                    </button>
+                    <button class="btn btn-info" onclick="showIngRules()" id="rulesBtn">
+                        📝 Quy Tắc -ing
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="game-results" id="gameResultsSection" style="display: none;">
+            <div class="results-container">
+                <h2 id="resultsTitle">🎉 Hoàn Thành!</h2>
+                <div class="final-score" id="finalScore"></div>
+                <div class="star-rating" id="starRating"></div>
+                
+                <div class="results-stats">
+                    <div class="result-stat">
+                        <span>Tổng câu hỏi:</span>
+                        <span id="totalQuestions">10</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Trả lời đúng:</span>
+                        <span id="correctAnswers">0</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Độ chính xác:</span>
+                        <span id="finalAccuracy">0%</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Streak tối đa:</span>
+                        <span id="maxStreak">0</span>
+                    </div>
+                </div>
+
+                <div class="achievements" id="achievementsDisplay"></div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="resetGame()">🔄 Chơi Lại</button>
+                    <button class="btn btn-secondary" onclick="location.href='games.html'">🎮 Game Khác</button>
+                    <button class="btn btn-secondary" onclick="location.href='../grammar-lessons/present-continuous.html'">📚 Ôn Lý Thuyết</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery - Present Continuous Game</p>
+    </footer>
+
+    <script>
+        // Game variables
+        let currentGameMode = '';
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 10;
+        let streak = 0;
+        let maxStreak = 0;
+        let questions = [];
+        let isAnswered = false;
+
+        // Question sets for different game modes
+        const questionSets = {
+            basics: [
+                {
+                    subject: "I",
+                    verb: "study",
+                    object: "English now",
+                    options: ["am studying", "is studying", "are studying", "study"],
+                    correct: 0,
+                    explanation: "'I' đi với 'am'. Công thức: I + am + V-ing",
+                    rule: "I + am + V-ing"
+                },
+                {
+                    subject: "She",
+                    verb: "cook",
+                    object: "dinner",
+                    options: ["am cooking", "is cooking", "are cooking", "cook"],
+                    correct: 1,
+                    explanation: "'She' (số ít, ngôi thứ 3) đi với 'is'. Công thức: He/She/It + is + V-ing",
+                    rule: "He/She/It + is + V-ing"
+                },
+                {
+                    subject: "They",
+                    verb: "play",
+                    object: "football",
+                    options: ["am playing", "is playing", "are playing", "play"],
+                    correct: 2,
+                    explanation: "'They' (số nhiều) đi với 'are'. Công thức: You/We/They + are + V-ing",
+                    rule: "You/We/They + are + V-ing"
+                },
+                {
+                    subject: "We",
+                    verb: "watch",
+                    object: "TV",
+                    options: ["am watching", "is watching", "are watching", "watch"],
+                    correct: 2,
+                    explanation: "'We' (số nhiều) đi với 'are'.",
+                    rule: "You/We/They + are + V-ing"
+                },
+                {
+                    subject: "The cat",
+                    verb: "sleep",
+                    object: "on the sofa",
+                    options: ["am sleeping", "is sleeping", "are sleeping", "sleep"],
+                    correct: 1,
+                    explanation: "'The cat' là số ít, đi với 'is'.",
+                    rule: "Singular noun + is + V-ing"
+                }
+            ],
+            'ing-rules': [
+                {
+                    baseForm: "work",
+                    options: ["working", "workin", "workking", "works"],
+                    correct: 0,
+                    explanation: "Động từ thông thường: thêm -ing trực tiếp.",
+                    rule: "Consonant + vowel + consonant → Thêm -ing"
+                },
+                {
+                    baseForm: "write",
+                    options: ["writeing", "writing", "writting", "writes"],
+                    correct: 1,
+                    explanation: "Động từ kết thúc -e câm: bỏ -e, thêm -ing.",
+                    rule: "Verb ending in -e → Drop -e, add -ing"
+                },
+                {
+                    baseForm: "run",
+                    options: ["runing", "running", "runng", "runs"],
+                    correct: 1,
+                    explanation: "Động từ 1 âm tiết, kết thúc CVC: gấp đôi phụ âm cuối + ing.",
+                    rule: "CVC pattern → Double final consonant + -ing"
+                },
+                {
+                    baseForm: "dance",
+                    options: ["danceing", "dancing", "danccing", "dances"],
+                    correct: 1,
+                    explanation: "Kết thúc -e: bỏ -e, thêm -ing.",
+                    rule: "Verb ending in -e → Drop -e, add -ing"
+                },
+                {
+                    baseForm: "lie",
+                    options: ["lieing", "lying", "liing", "lies"],
+                    correct: 1,
+                    explanation: "Kết thúc -ie: đổi -ie thành -y, thêm -ing.",
+                    rule: "Verb ending in -ie → Change -ie to -y, add -ing"
+                }
+            ],
+            situations: [
+                {
+                    situation: "Bạn đang ở thư viện và muốn nói với bạn bè rằng bạn đang đọc sách",
+                    subject: "I",
+                    verb: "read",
+                    object: "a book",
+                    options: ["am reading", "is reading", "are reading", "read"],
+                    correct: 0,
+                    explanation: "Hành động đang xảy ra ngay bây giờ: I am reading a book.",
+                    rule: "Present action happening now"
+                },
+                {
+                    situation: "Mẹ bạn đang gọi điện và hỏi bạn đang làm gì. Bạn đang xem TV",
+                    subject: "I",
+                    verb: "watch",
+                    object: "TV",
+                    options: ["am watching", "is watching", "are watching", "watch"],
+                    correct: 0,
+                    explanation: "Trả lời về hành động hiện tại: I am watching TV.",
+                    rule: "Describing current activity"
+                },
+                {
+                    situation: "Bạn nhìn thấy các bạn học sinh đang chơi bóng đá ở sân trường",
+                    subject: "The students",
+                    verb: "play",
+                    object: "football",
+                    options: ["am playing", "is playing", "are playing", "play"],
+                    correct: 2,
+                    explanation: "'The students' là số nhiều, dùng 'are playing'.",
+                    rule: "Plural subject + are + V-ing"
+                }
+            ],
+            pictures: [
+                {
+                    emoji: "🏃‍♂️",
+                    description: "Một người đang chạy",
+                    subject: "The man",
+                    verb: "run",
+                    object: "",
+                    options: ["am running", "is running", "are running", "run"],
+                    correct: 1,
+                    explanation: "Mô tả hành động trong hình: The man is running.",
+                    rule: "Describing picture actions"
+                },
+                {
+                    emoji: "👩‍🍳",
+                    description: "Một phụ nữ đang nấu ăn",
+                    subject: "The woman",
+                    verb: "cook",
+                    object: "",
+                    options: ["am cooking", "is cooking", "are cooking", "cook"],
+                    correct: 1,
+                    explanation: "Mô tả hành động: The woman is cooking.",
+                    rule: "Present action in progress"
+                },
+                {
+                    emoji: "👶😭",
+                    description: "Một em bé đang khóc",
+                    subject: "The baby",
+                    verb: "cry",
+                    object: "",
+                    options: ["am crying", "is crying", "are crying", "cry"],
+                    correct: 1,
+                    explanation: "Em bé (số ít): The baby is crying.",
+                    rule: "Singular subject + is + V-ing"
+                }
+            ],
+            negative: [
+                {
+                    subject: "I",
+                    verb: "work",
+                    object: "today",
+                    isNegative: true,
+                    options: ["am not working", "is not working", "are not working", "don't work"],
+                    correct: 0,
+                    explanation: "Câu phủ định: I am not working today.",
+                    rule: "I + am + not + V-ing"
+                },
+                {
+                    subject: "She",
+                    verb: "listen",
+                    object: "to music",
+                    isNegative: true,
+                    options: ["am not listening", "is not listening", "are not listening", "doesn't listen"],
+                    correct: 1,
+                    explanation: "Câu phủ định: She is not listening to music.",
+                    rule: "He/She/It + is + not + V-ing"
+                }
+            ],
+            questions: [
+                {
+                    question: "_____ you studying English?",
+                    options: ["Am", "Is", "Are", "Do"],
+                    correct: 2,
+                    explanation: "Câu hỏi với 'you': Are you studying English?",
+                    rule: "Are + you + V-ing?"
+                },
+                {
+                    question: "_____ she coming to the party?",
+                    options: ["Am", "Is", "Are", "Does"],
+                    correct: 1,
+                    explanation: "Câu hỏi với 'she': Is she coming to the party?",
+                    rule: "Is + he/she/it + V-ing?"
+                }
+            ]
+        };
+
+        function startGame(mode) {
+            currentGameMode = mode;
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            streak = 0;
+            maxStreak = 0;
+            
+            questions = shuffleArray(questionSets[mode] || questionSets.basics);
+            totalQuestions = 10;
+            
+            document.getElementById('gameModeSection').style.display = 'none';
+            document.getElementById('gamePlaySection').style.display = 'block';
+            
+            updateTimeIndicator(mode);
+            loadQuestion();
+        }
+
+        function updateTimeIndicator(mode) {
+            const indicators = {
+                'basics': '⏰ RIGHT NOW - Hành động đang xảy ra',
+                'ing-rules': '📝 SPELLING RULES - Quy tắc thêm -ing',
+                'situations': '🎭 REAL SITUATIONS - Tình huống thực tế',
+                'pictures': '📸 PICTURE DESCRIPTION - Mô tả hình ảnh',
+                'negative': '❌ NEGATIVE FORMS - Câu phủ định',
+                'questions': '❓ QUESTION FORMS - Câu hỏi'
+            };
+            
+            document.getElementById('timeIndicator').textContent = indicators[mode];
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                endGame();
+                return;
+            }
+            
+            isAnswered = false;
+            const question = questions[currentQuestion];
+            
+            // Update UI
+            document.getElementById('questionNumber').textContent = `${currentQuestion + 1}/${totalQuestions}`;
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('accuracyDisplay').textContent = 
+                Math.round((correctAnswers / Math.max(currentQuestion, 1)) * 100) + '%';
+            document.getElementById('streakDisplay').textContent = streak;
+            
+            // Reset all displays
+            hideAllContexts();
+            
+            // Show appropriate content based on game mode
+            if (currentGameMode === 'ing-rules') {
+                showIngRulesQuestion(question);
+            } else if (currentGameMode === 'situations') {
+                showSituationQuestion(question);
+            } else if (currentGameMode === 'pictures') {
+                showPictureQuestion(question);
+            } else if (currentGameMode === 'questions') {
+                showQuestionFormQuestion(question);
+            } else {
+                showBasicQuestion(question);
+            }
+            
+            // Create answer options
+            createAnswerOptions(question);
+            
+            // Hide explanation and next button
+            document.getElementById('explanationBox').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('hintBtn').style.display = 'inline-block';
+        }
+
+        function hideAllContexts() {
+            document.getElementById('situationContext').style.display = 'none';
+            document.getElementById('pictureContext').style.display = 'none';
+            document.getElementById('verbFormDisplay').style.display = 'none';
+            document.getElementById('ingFormation').style.display = 'none';
+            document.getElementById('sentenceTypeToggle').style.display = 'none';
+            document.getElementById('quickTip').style.display = 'none';
+        }
+
+        function showBasicQuestion(question) {
+            document.getElementById('questionText').textContent = "Chọn dạng đúng của động từ:";
+            
+            const subjectPart = document.getElementById('subjectPart');
+            const verbPart = document.getElementById('verbPart');
+            const objectPart = document.getElementById('objectPart');
+            
+            subjectPart.textContent = question.subject;
+            verbPart.textContent = "_____";
+            objectPart.textContent = question.object;
+            
+            if (question.isNegative) {
+                document.getElementById('sentenceTypeToggle').style.display = 'flex';
+            }
+        }
+
+        function showIngRulesQuestion(question) {
+            document.getElementById('questionText').textContent = "Thêm -ing vào động từ sau:";
+            document.getElementById('verbFormDisplay').style.display = 'block';
+            document.getElementById('ingFormation').style.display = 'block';
+            
+            document.getElementById('baseForm').textContent = question.baseForm;
+            document.getElementById('ingForm').textContent = "?";
+            document.getElementById('ruleBase').textContent = question.baseForm;
+            document.getElementById('ruleResult').textContent = "?";
+            
+            const sentenceParts = document.getElementById('sentenceParts');
+            sentenceParts.innerHTML = `
+                <span class="sentence-part">Verb:</span>
+                <span class="sentence-part">${question.baseForm}</span>
+                <span class="sentence-part">→</span>
+                <span class="sentence-blank">_____</span>
+            `;
+        }
+
+        function showSituationQuestion(question) {
+            document.getElementById('questionText').textContent = "Hoàn thành câu dựa vào tình huống:";
+            document.getElementById('situationContext').style.display = 'block';
+            document.getElementById('situationText').textContent = question.situation;
+            
+            const subjectPart = document.getElementById('subjectPart');
+            const verbPart = document.getElementById('verbPart');
+            const objectPart = document.getElementById('objectPart');
+            
+            subjectPart.textContent = question.subject;
+            verbPart.textContent = "_____";
+            objectPart.textContent = question.object;
+        }
+
+        function showPictureQuestion(question) {
+            document.getElementById('questionText').textContent = "Mô tả hành động trong hình:";
+            document.getElementById('pictureContext').style.display = 'block';
+            document.getElementById('pictureEmoji').textContent = question.emoji;
+            document.getElementById('pictureDescription').textContent = question.description;
+            
+            const subjectPart = document.getElementById('subjectPart');
+            const verbPart = document.getElementById('verbPart');
+            const objectPart = document.getElementById('objectPart');
+            
+            subjectPart.textContent = question.subject;
+            verbPart.textContent = "_____";
+            objectPart.textContent = question.object;
+        }
+
+        function showQuestionFormQuestion(question) {
+            document.getElementById('questionText').textContent = "Hoàn thành câu hỏi:";
+            
+            const sentenceParts = document.getElementById('sentenceParts');
+            sentenceParts.innerHTML = `
+                <span class="sentence-blank">_____</span>
+                <span class="sentence-part">${question.question.substring(question.question.indexOf(' ') + 1)}</span>
+            `;
+        }
+
+        function createAnswerOptions(question) {
+            const answerGrid = document.getElementById('answerGrid');
+            answerGrid.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'subject-option';
+                optionDiv.onclick = () => selectAnswer(index);
+                
+                optionDiv.innerHTML = `<strong>${option}</strong>`;
+                answerGrid.appendChild(optionDiv);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.subject-option');
+            
+            // Remove previous classes
+            options.forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected answer
+            options[selectedIndex].classList.add('selected');
+            
+            if (selectedIndex === question.correct) {
+                options[selectedIndex].classList.add('correct');
+                correctAnswers++;
+                score += calculateScore();
+                streak++;
+                maxStreak = Math.max(maxStreak, streak);
+                
+                // Update displays with correct answer
+                updateCorrectAnswer(question);
+                
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+                streak = 0;
+                
+                updateCorrectAnswer(question);
+            }
+            
+            // Show explanation
+            document.getElementById('explanationText').textContent = question.explanation;
+            document.getElementById('grammarRule').innerHTML = 
+                `<strong>Quy tắc:</strong> ${question.rule}`;
+            document.getElementById('explanationBox').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('hintBtn').style.display = 'none';
+        }
+
+        function updateCorrectAnswer(question) {
+            if (currentGameMode === 'ing-rules') {
+                document.getElementById('ingForm').textContent = question.options[question.correct];
+                document.getElementById('ruleResult').textContent = question.options[question.correct];
+            } else if (currentGameMode === 'questions') {
+                const sentenceParts = document.getElementById('sentenceParts');
+                sentenceParts.innerHTML = `
+                    <span class="sentence-part" style="background: #c8e6c9;">${question.options[question.correct]}</span>
+                    <span class="sentence-part">${question.question.substring(question.question.indexOf(' ') + 1)}</span>
+                `;
+            } else {
+                document.getElementById('verbPart').textContent = question.options[question.correct];
+                document.getElementById('verbPart').style.background = '#c8e6c9';
+                document.getElementById('verbPart').style.color = '#2e7d32';
+            }
+        }
+
+        function calculateScore() {
+            let baseScore = 10;
+            if (streak > 2) baseScore += streak * 2;
+            return baseScore;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function showHint() {
+            const hints = {
+                'basics': "Nhớ: I + am, He/She/It + is, You/We/They + are",
+                'ing-rules': "Quy tắc: Thông thường +ing, kết thúc -e bỏ e, CVC gấp đôi phụ âm",
+                'situations': "Đọc kỹ tình huống để hiểu ai đang làm gì",
+                'pictures': "Quan sát hình ảnh và mô tả hành động đang xảy ra",
+                'negative': "Câu phủ định: am/is/are + not + V-ing",
+                'questions': "Câu hỏi: Am/Is/Are + chủ ngữ + V-ing?"
+            };
+            
+            alert(hints[currentGameMode] || "Đọc kỹ câu hỏi và áp dụng công thức Present Continuous!");
+        }
+
+        function showIngRules() {
+            const rules = `
+Quy tắc thêm -ing:
+1. Thông thường: work → working
+2. Kết thúc -e: write → writing (bỏ -e)
+3. CVC (1 âm tiết): run → running (gấp đôi)
+4. Kết thúc -ie: lie → lying (đổi -ie thành -y)
+            `;
+            alert(rules);
+        }
+
+        function endGame() {
+            const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            document.getElementById('gamePlaySection').style.display = 'none';
+            document.getElementById('gameResultsSection').style.display = 'block';
+            
+            // Show results
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('correctAnswers').textContent = correctAnswers;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('maxStreak').textContent = maxStreak;
+            
+            // Show star rating
+            showStarRating(accuracy);
+            
+            // Show achievements
+            showFinalAchievements();
+        }
+
+        function showStarRating(accuracy) {
+            const starContainer = document.getElementById('starRating');
+            let stars = 0;
+            
+            if (accuracy >= 90) stars = 3;
+            else if (accuracy >= 70) stars = 2;
+            else if (accuracy >= 50) stars = 1;
+            
+            let starHTML = '';
+            for (let i = 0; i < 3; i++) {
+                starHTML += i < stars ? '⭐' : '☆';
+            }
+            
+            starContainer.innerHTML = `<div class="stars">${starHTML}</div>`;
+        }
+
+        function showFinalAchievements() {
+            const achievements = [];
+            
+            if (correctAnswers === totalQuestions) {
+                achievements.push("🎯 Perfect Continuous - Trả lời đúng 100%!");
+            }
+            if (maxStreak >= 5) {
+                achievements.push("🔥 Continuous Master - " + maxStreak + " câu đúng liên tiếp!");
+            }
+            if (currentGameMode === 'ing-rules' && correctAnswers >= 8) {
+                achievements.push("📝 Spelling Expert - Thành thạo quy tắc -ing!");
+            }
+            if (currentGameMode === 'pictures' && correctAnswers >= 8) {
+                achievements.push("📸 Picture Master - Mô tả hình ảnh xuất sắc!");
+            }
+            
+            const achievementContainer = document.getElementById('achievementsDisplay');
+            achievementContainer.innerHTML = achievements.length > 0 ? 
+                '<h3>🏆 Thành Tích</h3>' + achievements.map(a => `<div class="achievement">${a}</div>`).join('') : 
+                '<p>Tiếp tục luyện tập để mở khóa thành tích!</p>';
+        }
+
+        function resetGame() {
+            document.getElementById('gameResultsSection').style.display = 'none';
+            document.getElementById('gameModeSection').style.display = 'block';
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Initialize default questions
+        questions = shuffleArray(questionSets.basics);
+    </script>
+</body>
+</html>

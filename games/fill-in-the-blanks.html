@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fill in the Blanks</title>
+    <link rel="stylesheet" href="../style.css">
+    <script>
+        const sentences = [
+            {text: "I ____ (go) to school every day.", answer: "go"},
+            {text: "She ____ (play) tennis.", answer: "plays"},
+            {text: "They ____ (not like) coffee.", answer: "do not like"}
+        ];
+        let idx = 0, correct = 0;
+        function showSentence() {
+            if (idx >= sentences.length) {
+                document.getElementById('main').innerHTML = `<h3>Your score: ${correct}/${sentences.length}</h3>`;
+                return;
+            }
+            document.getElementById('sentence').textContent = sentences[idx].text;
+            document.getElementById('answer').value = '';
+        }
+        function check() {
+            const user = document.getElementById('answer').value.trim().toLowerCase();
+            if (user === sentences[idx].answer) correct++;
+            idx++;
+            showSentence();
+        }
+        window.onload = showSentence;
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Fill in the Blanks</h1>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="games.html">Grammar Games</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main">
+        <h2 id="sentence"></h2>
+        <input type="text" id="answer" placeholder="Your answer here">
+        <button onclick="check()">Check</button>
+    </main>
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery</p>
+    </footer>
+</body>
+</html>

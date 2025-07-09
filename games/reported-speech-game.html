@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Reported Speech Game | English Grammar</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">🎓 English Grammar</a>
+            <div class="nav-links">
+                <a href="../grammar-lessons/lessons.html">📚 Lessons</a>
+                <a href="games.html">🎮 Games</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="game-container">
+            <header class="game-header">
+                <h1>💬 Reported Speech Challenge</h1>
+                <p class="game-subtitle">Transform direct speech into reported speech!</p>
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Score:</span>
+                        <span id="score" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Streak:</span>
+                        <span id="streak" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Level:</span>
+                        <span id="level" class="stat-value">1</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="game-modes">
+                <button class="mode-btn active" onclick="setMode('statements')">💭 Statements</button>
+                <button class="mode-btn" onclick="setMode('questions')">❓ Questions</button>
+                <button class="mode-btn" onclick="setMode('commands')">📢 Commands</button>
+                <button class="mode-btn" onclick="setMode('mixed')">🎯 Mixed Challenge</button>
+            </div>
+
+            <div id="game-area" class="game-area">
+                <div class="speech-transformation">
+                    <div class="direct-speech" id="direct-speech">
+                        <h3>📝 Direct Speech</h3>
+                        <div id="direct-text" class="speech-text"></div>
+                    </div>
+                    <div class="arrow-transform">➡️</div>
+                    <div class="reported-speech">
+                        <h3>🗣️ Reported Speech</h3>
+                        <div id="reported-container" class="speech-text"></div>
+                    </div>
+                </div>
+
+                <div id="options-container" class="options-container"></div>
+                <div id="input-container" class="input-container hidden"></div>
+                
+                <div id="feedback" class="feedback hidden"></div>
+                
+                <div class="game-controls">
+                    <button id="hint-btn" class="hint-btn" onclick="showHint()">💡 Hint</button>
+                    <button id="next-btn" class="action-btn hidden" onclick="nextQuestion()">Next ➡️</button>
+                </div>
+
+                <div class="progress-info">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div id="progress-text" class="progress-text">Question 1 of 10</div>
+                </div>
+            </div>
+
+            <div id="game-over" class="game-over hidden">
+                <h2>🎉 Transformation Complete!</h2>
+                <div class="final-stats">
+                    <p>Final Score: <span id="final-score"></span></p>
+                    <p>Questions Completed: <span id="questions-completed"></span></p>
+                    <p>Best Streak: <span id="best-streak"></span></p>
+                    <p>Accuracy: <span id="accuracy"></span>%</p>
+                    <p id="performance-message"></p>
+                </div>
+                <div class="mastery-badges" id="mastery-badges"></div>
+                <div class="game-over-actions">
+                    <button onclick="restartGame()" class="action-btn">🔄 Transform Again</button>
+                    <a href="../grammar-lessons/reported-speech.html" class="action-btn">📚 Review Lesson</a>
+                    <a href="games.html" class="action-btn">🎮 Other Games</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questions = {
+            statements: [
+                {
+                    direct: '"I am studying English," she said.',
+                    reported: 'She said she was studying English.',
+                    options: [
+                        'She said she was studying English.',
+                        'She said she is studying English.',
+                        'She said I was studying English.',
+                        'She said she studied English.'
+                    ],
+                    correct: 0,
+                    explanation: 'Present Continuous → Past Continuous, "I" → "she"',
+                    hint: 'Change the tense and pronouns',
+                    difficulty: 'easy'
+                },
+                {
+                    direct: '"I have finished my homework," Tom said.',
+                    reported: 'Tom said he had finished his homework.',
+                    options: [
+                        'Tom said he has finished his homework.',
+                        'Tom said he had finished his homework.',
+                        'Tom said I have finished my homework.',
+                        'Tom said he finished his homework.'
+                    ],
+                    correct: 1,
+                    explanation: 'Present Perfect → Past Perfect, "I/my" → "he/his"',
+                    hint: 'Present Perfect changes to Past Perfect',
+                    difficulty: 'medium'
+                },
+                {
+                    direct: '"I will help you tomorrow," she promised.',
+                    reported: 'She promised she would help me the next day.',
+                    options: [
+                        'She promised she will help me tomorrow.',
+                        'She promised she would help me tomorrow.',
+                        'She promised she would help me the next day.',
+                        'She promised I would help you tomorrow.'
+                    ],
+                    correct: 2,
+                    explanation: '"will" → "would", "you" → "me", "tomorrow" → "the next day"',
+                    hint: 'Change modal verb, pronouns, and time expression',
+                    difficulty: 'hard'
+                }
+            ],
+            questions: [
+                {
+                    direct: '"Are you coming to the party?" he asked.',
+                    reported: 'He asked if I was coming to the party.',
+                    options: [
+                        'He asked if I was coming to the party.',
+                        'He asked are you coming to the party.',
+                        'He asked if you were coming to the party.',
+                        'He asked if I am coming to the party.'
+                    ],
+                    correct: 0,
+                    explanation: 'Yes/No question: use "if", change tense and pronouns',
+                    hint: 'Use "if" for Yes/No questions',
+                    difficulty: 'medium'
+                },
+                {
+                    direct: '"What time is it?" she asked.',
+                    reported: 'She asked what time it was.',
+                    options: [
+                        'She asked what time is it.',
+                        'She asked what time it was.',
+                        'She asked what time was it.',
+                        'She asked what was the time.'
+                    ],
+                    correct: 1,
+                    explanation: 'Wh-question: keep question word, change to statement order',
+                    hint: 'Keep the question word but change to statement order',
+                    difficulty: 'medium'
+                },
+                {
+                    direct: '"Where do you live?" he asked me.',
+                    reported: 'He asked me where I lived.',
+                    options: [
+                        'He asked me where do I live.',
+                        'He asked me where I lived.',
+                        'He asked me where did I live.',
+                        'He asked me where I live.'
+                    ],
+                    correct: 1,
+                    explanation: 'Present Simple → Past Simple, "you" → "I"',
+                    hint: 'Change tense and pronoun, use statement order',
+                    difficulty: 'medium'
+                }
+            ],
+            commands: [
+                {
+                    direct: '"Close the door," the teacher said.',
+                    reported: 'The teacher told us to close the door.',
+                    options: [
+                        'The teacher said to close the door.',
+                        'The teacher told us to close the door.',
+                        'The teacher said close the door.',
+                        'The teacher told to close the door.'
+                    ],
+                    correct: 1,
+                    explanation: 'Commands: use "told + object + to + infinitive"',
+                    hint: 'Use "told + someone + to + verb"',
+                    difficulty: 'easy'
+                },
+                {
+                    direct: '"Don\'t be late," she warned me.',
+                    reported: 'She warned me not to be late.',
+                    options: [
+                        'She warned me don\'t be late.',
+                        'She warned me not to be late.',
+                        'She warned me to not be late.',
+                        'She warned me not be late.'
+                    ],
+                    correct: 1,
+                    explanation: 'Negative commands: use "not to + infinitive"',
+                    hint: 'Use "not to" for negative commands',
+                    difficulty: 'medium'
+                }
+            ]
+        };
+
+        let currentMode = 'statements';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let level = 1;
+        let questionsCompleted = 0;
+        let correctAnswers = 0;
+        let currentQuestions = [];
+        let hintsUsed = 0;
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            initGame();
+        }
+
+        function initGame() {
+            if (currentMode === 'mixed') {
+                currentQuestions = [
+                    ...questions.statements,
+                    ...questions.questions,
+                    ...questions.commands
+                ];
+            } else {
+                currentQuestions = [...questions[currentMode]];
+            }
+            
+            // Shuffle questions
+            currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            streak = 0;
+            level = 1;
+            questionsCompleted = 0;
+            correctAnswers = 0;
+            hintsUsed = 0;
+            
+            updateStats();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                // Next level
+                level++;
+                currentQuestionIndex = 0;
+                currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
+                updateStats();
+            }
+
+            if (questionsCompleted >= 15) {
+                endGame();
+                return;
+            }
+
+            const question = currentQuestions[currentQuestionIndex];
+            
+            // Update progress
+            const progress = ((questionsCompleted + 1) / 15) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = 
+                `Question ${questionsCompleted + 1} of 15`;
+            
+            // Show direct speech
+            document.getElementById('direct-text').textContent = question.direct;
+            
+            // Clear containers
+            document.getElementById('options-container').innerHTML = '';
+            document.getElementById('input-container').innerHTML = '';
+            document.getElementById('reported-container').innerHTML = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            
+            // Show options
+            const optionsContainer = document.getElementById('options-container');
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+
+            // Reset hint button
+            document.getElementById('hint-btn').disabled = false;
+            document.getElementById('hint-btn').textContent = '💡 Hint';
+        }
+
+        function checkAnswer(selectedIndex) {
+            const question = currentQuestions[currentQuestionIndex];
+            const optionBtns = document.querySelectorAll('.option-btn');
+            
+            optionBtns.forEach(btn => btn.disabled = true);
+            questionsCompleted++;
+            
+            if (selectedIndex === question.correct) {
+                optionBtns[selectedIndex].classList.add('correct');
+                const points = calculatePoints(question);
+                score += points;
+                correctAnswers++;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                
+                showFeedback(`🎉 Perfect transformation! +${points} points`, true, question.explanation);
+                
+                // Show correct reported speech
+                document.getElementById('reported-container').innerHTML = 
+                    `<div class="correct-transformation">${question.reported}</div>`;
+            } else {
+                optionBtns[selectedIndex].classList.add('incorrect');
+                optionBtns[question.correct].classList.add('correct');
+                streak = 0;
+                
+                showFeedback('❌ Not quite right!', false, question.explanation);
+                
+                // Show correct reported speech
+                document.getElementById('reported-container').innerHTML = 
+                    `<div class="correct-transformation">${question.reported}</div>`;
+            }
+            
+            updateStats();
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function calculatePoints(question) {
+            let basePoints = 15;
+            
+            // Difficulty bonus
+            if (question.difficulty === 'medium') basePoints += 5;
+            if (question.difficulty === 'hard') basePoints += 10;
+            
+            // Streak bonus
+            if (streak >= 3) basePoints += 5;
+            if (streak >= 5) basePoints += 10;
+            
+            // Level bonus
+            basePoints += (level - 1) * 3;
+            
+            return basePoints;
+        }
+
+        function showFeedback(message, isCorrect, explanation = '') {
+            const feedback = document.getElementById('feedback');
+            feedback.innerHTML = `
+                <div class="feedback-message ${isCorrect ? 'correct' : 'incorrect'}">${message}</div>
+                ${explanation ? `<div class="feedback-explanation">💡 ${explanation}</div>` : ''}
+            `;
+            feedback.classList.remove('hidden');
+        }
+
+        function showHint() {
+            const question = currentQuestions[currentQuestionIndex];
+            if (question.hint) {
+                hintsUsed++;
+                const hintDiv = document.createElement('div');
+                hintDiv.className = 'hint-display';
+                hintDiv.innerHTML = `💡 Hint: ${question.hint}`;
+                document.querySelector('.speech-transformation').appendChild(hintDiv);
+                
+                document.getElementById('hint-btn').disabled = true;
+                document.getElementById('hint-btn').textContent = '💡 Hint Used';
+                
+                setTimeout(() => {
+                    if (hintDiv.parentNode) {
+                        hintDiv.parentNode.removeChild(hintDiv);
+                    }
+                }, 6000);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('level').textContent = level;
+        }
+
+        function endGame() {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-over').classList.remove('hidden');
+            
+            const accuracy = questionsCompleted > 0 ? Math.round((correctAnswers / questionsCompleted) * 100) : 0;
+            
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('questions-completed').textContent = questionsCompleted;
+            document.getElementById('best-streak').textContent = bestStreak;
+            document.getElementById('accuracy').textContent = accuracy;
+            
+            // Performance message
+            let message = '';
+            if (accuracy >= 90) {
+                message = '🏆 Reported Speech Master! You\'ve mastered the art of transformation!';
+            } else if (accuracy >= 75) {
+                message = '🌟 Excellent! You have great reported speech skills!';
+            } else if (accuracy >= 60) {
+                message = '👍 Good work! Keep practicing speech transformation!';
+            } else {
+                message = '📚 Keep studying! Review the lesson and try again!';
+            }
+            
+            document.getElementById('performance-message').textContent = message;
+            
+            showMasteryBadges();
+        }
+
+        function showMasteryBadges() {
+            const badges = [];
+            
+            if (bestStreak >= 5) badges.push('🔥 Transformation Streak - 5+ correct in a row!');
+            if (level >= 3) badges.push('📈 Level Expert - Reached level 3!');
+            if (score >= 300) badges.push('💎 High Scorer - 300+ points!');
+            if (hintsUsed === 0 && correctAnswers >= 8) badges.push('🧠 Independent Master - No hints needed!');
+            if (currentMode === 'mixed') badges.push('🎯 Mixed Master - Completed mixed challenge!');
+            if (correctAnswers >= 12) badges.push('⭐ Speech Transformer - 12+ correct transformations!');
+            
+            const badgesContainer = document.getElementById('mastery-badges');
+            if (badges.length > 0) {
+                badgesContainer.innerHTML = `
+                    <h3>🏅 Mastery Badges:</h3>
+                    ${badges.map(badge => `<div class="mastery-badge">${badge}</div>`).join('')}
+                `;
+            }
+        }
+
+        function restartGame() {
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('game-over').classList.add('hidden');
+            initGame();
+        }
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+
+    <style>
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 2px solid #6366f1;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #6366f1;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            color: #1f2937;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .game-modes {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .mode-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .mode-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .speech-transformation {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .direct-speech,
+        .reported-speech {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 10px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .direct-speech {
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+        }
+
+        .reported-speech {
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+        }
+
+        .direct-speech h3 {
+            color: #dc2626;
+            margin-bottom: 1rem;
+        }
+
+        .reported-speech h3 {
+            color: #059669;
+            margin-bottom: 1rem;
+        }
+
+        .speech-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .correct-transformation {
+            color: #059669;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 1rem;
+            background: #dcfce7;
+            border-radius: 8px;
+            border: 2px solid #22c55e;
+        }
+
+        .arrow-transform {
+            font-size: 2.5rem;
+            color: #6366f1;
+            font-weight: bold;
+            animation: bounce 2s infinite;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .option-btn {
+            padding: 1.2rem;
+            border: 3px solid #e5e7eb;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: left;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: #6366f1;
+            background: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .option-btn.incorrect {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .feedback {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .feedback-message {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-message.correct {
+            color: #15803d;
+        }
+
+        .feedback-message.incorrect {
+            color: #dc2626;
+        }
+
+        .feedback-explanation {
+            font-size: 1rem;
+            color: #1e40af;
+            background: #f0f9ff;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid #3b82f6;
+        }
+
+        .hint-display {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fef3c7;
+            color: #92400e;
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            border: 2px solid #f59e0b;
+            animation: slideDown 0.5s ease-in;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .game-controls {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .hint-btn {
+            padding: 0.6rem 1.5rem;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .hint-btn:hover:not(:disabled) {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .hint-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .action-btn {
+            padding: 0.75rem 2rem;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5856eb;
+            transform: translateY(-2px);
+        }
+
+        .progress-info {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            font-weight: bold;
+            color: #6366f1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .final-stats {
+            margin: 2rem 0;
+        }
+
+        .final-stats p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+        }
+
+        .mastery-badges {
+            margin: 2rem 0;
+        }
+
+        .mastery-badges h3 {
+            color: #6366f1;
+            margin-bottom: 1rem;
+        }
+
+        .mastery-badge {
+            background: linear-gradient(45deg, #8b5cf6, #6366f1);
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            border-radius: 20px;
+            border: 2px solid #5b21b6;
+            display: inline-block;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .game-over-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        /* Mobile optimizations for iPhone 15 Pro Max */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1rem;
+            }
+
+            .speech-transformation {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .arrow-transform {
+                transform: rotate(90deg);
+                margin: 1rem 0;
+                font-size: 2rem;
+            }
+
+            .direct-speech,
+            .reported-speech {
+                min-height: 100px;
+                padding: 1rem;
+            }
+
+            .speech-text {
+                font-size: 1rem;
+            }
+
+            .game-stats {
+                gap: 1rem;
+            }
+
+            .stat-item {
+                padding: 0.4rem 0.8rem;
+                min-width: 70px;
+            }
+
+            .mode-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .option-btn {
+                padding: 1rem;
+                font-size: 0.95rem;
+                min-height: 55px;
+            }
+
+            .feedback {
+                padding: 1rem;
+            }
+
+            .hint-display {
+                position: static;
+                transform: none;
+                margin: 1rem 0;
+            }
+
+            .game-over-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-stats {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .game-modes {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .mode-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .hint-btn {
+                margin-bottom: 1rem;
+                margin-right: 0;
+            }
+
+            .speech-transformation {
+                padding: 1rem;
+            }
+        }
+    </style>
+</body>
+</html>

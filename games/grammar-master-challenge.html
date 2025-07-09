@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Grammar Master Challenge</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .mobile-optimized {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .game-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            z-index: 100;
+            margin: -20px -20px 20px -20px;
+        }
+        
+        .level-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .level-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 10px;
+            border-radius: 15px;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .level-btn:hover, .level-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .level-btn.active {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .question-container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #2d6cdf;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background: #fff;
+            border: 2px solid #2d6cdf;
+            color: #2d6cdf;
+            padding: 15px 12px;
+            border-radius: 15px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        
+        .option-btn:hover, .option-btn:active {
+            background: #2d6cdf;
+            color: white;
+            transform: scale(0.98);
+        }
+        
+        .option-btn.correct {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .option-btn.incorrect {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+        
+        .hint-container {
+            background: #e8f4f8;
+            border-left: 4px solid #2d6cdf;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .hint-container.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            background: #f8f9fa;
+            padding: 12px 8px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+        
+        .timer-warning {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { background-color: #ff6b6b; }
+            50% { background-color: #ff8e8e; }
+            100% { background-color: #ff6b6b; }
+        }
+        
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: none;
+            animation: popIn 0.5s ease;
+        }
+        
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .floating-score {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            from { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+            to { 
+                opacity: 0; 
+                transform: translateY(-50px); 
+            }
+        }
+    </style>
+</head>
+<body class="mobile-optimized">
+    <header>
+        <h1>🏆 Grammar Master Challenge</h1>
+        <p style="font-size: 0.9em; margin: 5px 0;">Thử thách ngữ pháp toàn diện</p>
+        <nav>
+            <ul>
+                <li><a href="../index.html">🏠 Trang Chủ</a></li>
+                <li><a href="../grammar-lessons/lessons.html">📚 Bài Học</a></li>
+                <li><a href="games.html">🎮 Game Khác</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Game Menu -->
+        <div id="game-menu">
+            <div class="game-container">
+                <h2>🎯 Chọn Cấp Độ Thử Thách</h2>
+                <p>Kiểm tra kiến thức ngữ pháp của bạn qua các cấp độ khác nhau!</p>
+                
+                <div class="level-selector">
+                    <button class="level-btn" onclick="startChallenge('beginner')">
+                        <span>🌱</span>
+                        <span>Cơ Bản</span>
+                        <small>10 câu</small>
+                    </button>
+                    <button class="level-btn" onclick="startChallenge('intermediate')">
+                        <span>🚀</span>
+                        <span>Trung Cấp</span>
+                        <small>15 câu</small>
+                    </button>
+                    <button class="level-btn" onclick="startChallenge('advanced')">
+                        <span>⚡</span>
+                        <span>Nâng Cao</span>
+                        <small>20 câu</small>
+                    </button>
+                    <button class="level-btn" onclick="startChallenge('master')">
+                        <span>👑</span>
+                        <span>Thạc Sĩ</span>
+                        <small>25 câu</small>
+                    </button>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h3>🏅 Quy Tắc Game</h3>
+                    <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
+                        <li>Mỗi câu có 30 giây để trả lời</li>
+                        <li>Trả lời đúng: +10 điểm</li>
+                        <li>Trả lời sai: -2 điểm</li>
+                        <li>Bonus tốc độ: +1-5 điểm (nếu trả lời nhanh)</li>
+                        <li>Đạt 80% trở lên: Nhận achievement!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div id="game-area" style="display: none;">
+            <div class="game-header">
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div style="font-weight: bold; color: #2d6cdf;">Câu</div>
+                        <div id="question-count">1/10</div>
+                    </div>
+                    <div class="stat-item" id="timer-display">
+                        <div style="font-weight: bold; color: #ff6b6b;">Thời gian</div>
+                        <div id="timer">30s</div>
+                    </div>
+                    <div class="stat-item">
+                        <div style="font-weight: bold; color: #28a745;">Điểm</div>
+                        <div id="current-score">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div style="font-weight: bold; color: #6c757d;">Đúng</div>
+                        <div id="correct-count">0</div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="game-progress"></div>
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <h3 id="question-text"></h3>
+                <div id="question-topic" style="font-size: 0.9em; color: #6c757d; margin-bottom: 15px;"></div>
+                <div class="options-grid" id="options-container"></div>
+                <div class="hint-container" id="hint-display"></div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results-screen" style="display: none;">
+            <div class="game-container">
+                <h2>🎊 Kết Quả Thử Thách</h2>
+                
+                <div class="score-display">
+                    <h3>Tổng Điểm: <span id="final-score">0</span></h3>
+                    <div id="final-stars" style="font-size: 2rem; margin: 10px 0;"></div>
+                    <div id="performance-level"></div>
+                </div>
+                
+                <div id="detailed-stats" style="margin: 30px 0;"></div>
+                <div id="achievements-earned"></div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <button onclick="resetGame()" class="quiz-button">🔄 Chơi Lại</button>
+                    <button onclick="shareResults()" class="quiz-button">📱 Chia Sẻ</button>
+                    <a href="../grammar-lessons/lessons.html" class="quiz-button">📚 Học Thêm</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Popup -->
+        <div id="achievement-popup" class="achievement-popup">
+            <h3 id="achievement-title"></h3>
+            <p id="achievement-description"></p>
+            <button onclick="closeAchievement()" class="quiz-button">Tuyệt vời!</button>
+        </div>
+    </main>
+
+    <script>
+        // Game data với các cấp độ khác nhau
+        const gameData = {
+            beginner: [
+                {
+                    question: "I _____ to school every day.",
+                    options: ["go", "goes", "going", "went"],
+                    correct: 0,
+                    topic: "Present Simple",
+                    explanation: "Với chủ ngữ 'I', động từ giữ nguyên dạng gốc 'go'."
+                },
+                {
+                    question: "She _____ a book yesterday.",
+                    options: ["read", "reads", "reading", "will read"],
+                    correct: 0,
+                    topic: "Past Simple",
+                    explanation: "'Yesterday' là dấu hiệu của thì quá khứ đơn. 'Read' có dạng quá khứ giống hiện tại."
+                },
+                {
+                    question: "They _____ playing football now.",
+                    options: ["is", "are", "was", "were"],
+                    correct: 1,
+                    topic: "Present Continuous",
+                    explanation: "Với chủ ngữ 'they' (số nhiều), dùng 'are' + V-ing."
+                },
+                {
+                    question: "I _____ see you tomorrow.",
+                    options: ["will", "would", "can", "could"],
+                    correct: 0,
+                    topic: "Future Simple",
+                    explanation: "'Tomorrow' là dấu hiệu tương lai, dùng 'will' + V."
+                },
+                {
+                    question: "She _____ swim when she was young.",
+                    options: ["can", "could", "may", "might"],
+                    correct: 1,
+                    topic: "Modal Verbs",
+                    explanation: "'Could' diễn tả khả năng trong quá khứ."
+                },
+                {
+                    question: "This house _____ built in 1990.",
+                    options: ["is", "was", "has", "have"],
+                    correct: 1,
+                    topic: "Passive Voice",
+                    explanation: "Câu bị động ở quá khứ: S + was/were + V3."
+                },
+                {
+                    question: "If it rains, I _____ stay home.",
+                    options: ["will", "would", "can", "could"],
+                    correct: 0,
+                    topic: "Conditionals Type 1",
+                    explanation: "Câu điều kiện loại 1: If + present simple, S + will + V."
+                },
+                {
+                    question: "The book _____ I bought is interesting.",
+                    options: ["who", "which", "where", "when"],
+                    correct: 1,
+                    topic: "Relative Clauses",
+                    explanation: "'Which' dùng để thay thế cho danh từ chỉ vật (the book)."
+                },
+                {
+                    question: "I need _____ help with this problem.",
+                    options: ["a", "an", "some", "any"],
+                    correct: 2,
+                    topic: "Articles & Quantifiers",
+                    explanation: "'Some' dùng trong câu khẳng định với danh từ không đếm được."
+                },
+                {
+                    question: "She is _____ than her sister.",
+                    options: ["tall", "taller", "tallest", "more tall"],
+                    correct: 1,
+                    topic: "Comparatives",
+                    explanation: "So sánh hơn với tính từ ngắn: adj + er."
+                }
+            ],
+            
+            intermediate: [
+                {
+                    question: "By the time you arrive, I _____ finished my work.",
+                    options: ["will", "will have", "would", "would have"],
+                    correct: 1,
+                    topic: "Future Perfect",
+                    explanation: "Future Perfect: will have + V3, diễn tả hành động hoàn thành trước một thời điểm tương lai."
+                },
+                {
+                    question: "She said that she _____ tired.",
+                    options: ["is", "was", "were", "be"],
+                    correct: 1,
+                    topic: "Reported Speech",
+                    explanation: "Câu tường thuật: khi động từ tường thuật ở quá khứ, động từ trong mệnh đề phụ lùi thì."
+                },
+                {
+                    question: "I wish I _____ taller.",
+                    options: ["am", "was", "were", "will be"],
+                    correct: 2,
+                    topic: "Subjunctive",
+                    explanation: "Trong câu ước, dùng 'were' cho tất cả chủ ngữ."
+                },
+                {
+                    question: "The letter _____ by my secretary yesterday.",
+                    options: ["typed", "was typed", "is typed", "has typed"],
+                    correct: 1,
+                    topic: "Passive Voice",
+                    explanation: "Câu bị động ở quá khứ đơn: S + was/were + V3."
+                },
+                {
+                    question: "_____ you help me, I would be grateful.",
+                    options: ["Should", "Would", "Could", "Will"],
+                    correct: 0,
+                    topic: "Conditionals",
+                    explanation: "'Should' trong câu điều kiện diễn tả khả năng có thể xảy ra."
+                }
+            ],
+            
+            advanced: [
+                {
+                    question: "Had I known about the meeting, I _____ attended.",
+                    options: ["would", "would have", "will", "will have"],
+                    correct: 1,
+                    topic: "Mixed Conditionals",
+                    explanation: "Câu điều kiện đảo ngữ loại 3: Had + S + V3, S + would have + V3."
+                },
+                {
+                    question: "Not until yesterday _____ the truth.",
+                    options: ["I knew", "did I know", "I know", "do I know"],
+                    correct: 1,
+                    topic: "Inversion",
+                    explanation: "Đảo ngữ với 'Not until': Not until + time + auxiliary + S + V."
+                },
+                {
+                    question: "It's high time we _____ serious about this issue.",
+                    options: ["get", "got", "getting", "to get"],
+                    correct: 1,
+                    topic: "Subjunctive",
+                    explanation: "'It's high time' + S + V2: đã đến lúc phải làm gì."
+                }
+            ],
+            
+            master: [
+                {
+                    question: "Were it not for your help, I _____ succeeded.",
+                    options: ["wouldn't have", "won't have", "wouldn't", "won't"],
+                    correct: 0,
+                    topic: "Subjunctive Conditionals",
+                    explanation: "Câu điều kiện đảo ngữ với 'were': Were it not for = If it were not for."
+                },
+                {
+                    question: "Scarcely _____ the door when the phone rang.",
+                    options: ["I had opened", "had I opened", "I opened", "did I open"],
+                    correct: 1,
+                    topic: "Advanced Inversion",
+                    explanation: "Đảo ngữ với 'Scarcely': Scarcely + had + S + V3 + when..."
+                }
+            ]
+        };
+
+        let currentLevel = '';
+        let currentQuestions = [];
+        let questionIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let timeLeft = 30;
+        let timer;
+        let startTime = 0;
+        let totalTime = 0;
+
+        function startChallenge(level) {
+            currentLevel = level;
+            currentQuestions = [...gameData[level]];
+            
+            // Thêm câu hỏi từ các level khác để đạt số lượng yêu cầu
+            const targetCount = level === 'beginner' ? 10 : level === 'intermediate' ? 15 : level === 'advanced' ? 20 : 25;
+            
+            while (currentQuestions.length < targetCount) {
+                const allQuestions = [...gameData.beginner, ...gameData.intermediate, ...gameData.advanced, ...gameData.master];
+                const randomQuestion = allQuestions[Math.floor(Math.random() * allQuestions.length)];
+                if (!currentQuestions.find(q => q.question === randomQuestion.question)) {
+                    currentQuestions.push(randomQuestion);
+                }
+            }
+            
+            currentQuestions = currentQuestions.slice(0, targetCount);
+            shuffleArray(currentQuestions);
+            
+            questionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            startTime = Date.now();
+            
+            document.getElementById('game-menu').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            
+            showQuestion();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function showQuestion() {
+            if (questionIndex >= currentQuestions.length) {
+                showResults();
+                return;
+            }
+
+            const question = currentQuestions[questionIndex];
+            timeLeft = 30;
+            
+            document.getElementById('question-count').textContent = `${questionIndex + 1}/${currentQuestions.length}`;
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('question-topic').textContent = `📚 ${question.topic}`;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            document.getElementById('hint-display').classList.remove('show');
+            
+            const progress = (questionIndex / currentQuestions.length) * 100;
+            document.getElementById('game-progress').style.width = progress + '%';
+            
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft + 's';
+                
+                const timerDisplay = document.getElementById('timer-display');
+                if (timeLeft <= 10) {
+                    timerDisplay.classList.add('timer-warning');
+                } else {
+                    timerDisplay.classList.remove('timer-warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    selectAnswer(-1); // timeout
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(selectedIndex) {
+            clearInterval(timer);
+            
+            const question = currentQuestions[questionIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            const responseTime = 30 - timeLeft;
+            
+            buttons.forEach(btn => btn.style.pointerEvents = 'none');
+            
+            let pointsEarned = 0;
+            let isCorrect = false;
+            
+            if (selectedIndex === question.correct) {
+                isCorrect = true;
+                correctAnswers++;
+                pointsEarned = 10;
+                
+                // Bonus tốc độ
+                if (responseTime <= 5) pointsEarned += 5;
+                else if (responseTime <= 10) pointsEarned += 3;
+                else if (responseTime <= 15) pointsEarned += 1;
+                
+                if (selectedIndex >= 0) {
+                    buttons[selectedIndex].classList.add('correct');
+                }
+                
+                showFloatingScore(pointsEarned, true);
+            } else {
+                pointsEarned = -2;
+                if (selectedIndex >= 0) {
+                    buttons[selectedIndex].classList.add('incorrect');
+                }
+                buttons[question.correct].classList.add('correct');
+                
+                showFloatingScore(pointsEarned, false);
+            }
+            
+            score += pointsEarned;
+            document.getElementById('current-score').textContent = score;
+            document.getElementById('correct-count').textContent = correctAnswers;
+            
+            // Hiện giải thích
+            const hintDisplay = document.getElementById('hint-display');
+            hintDisplay.innerHTML = `<strong>Giải thích:</strong> ${question.explanation}`;
+            hintDisplay.classList.add('show');
+            
+            setTimeout(() => {
+                questionIndex++;
+                showQuestion();
+            }, 3000);
+        }
+
+        function showFloatingScore(points, isCorrect) {
+            const floatingScore = document.createElement('div');
+            floatingScore.className = 'floating-score';
+            floatingScore.textContent = (points > 0 ? '+' : '') + points;
+            floatingScore.style.color = isCorrect ? '#28a745' : '#dc3545';
+            floatingScore.style.left = '50%';
+            floatingScore.style.top = '50%';
+            
+            document.querySelector('.question-container').appendChild(floatingScore);
+            
+            setTimeout(() => {
+                floatingScore.remove();
+            }, 1000);
+        }
+
+        function showResults() {
+            clearInterval(timer);
+            totalTime = Math.round((Date.now() - startTime) / 1000);
+            
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('results-screen').style.display = 'block';
+            
+            const percentage = Math.round((correctAnswers / currentQuestions.length) * 100);
+            const maxPossibleScore = currentQuestions.length * 10;
+            
+            document.getElementById('final-score').textContent = `${score}/${maxPossibleScore} (${percentage}%)`;
+            
+            // Hiển thị sao
+            const stars = Math.ceil(percentage / 20);
+            let starHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                starHTML += `<span class="star ${i <= stars ? 'filled' : ''}">⭐</span>`;
+            }
+            document.getElementById('final-stars').innerHTML = starHTML;
+            
+            // Đánh giá hiệu suất
+            let performanceLevel = '';
+            let levelColor = '';
+            
+            if (percentage >= 90) {
+                performanceLevel = '🏆 XUẤT SẮC - Grammar Master!';
+                levelColor = '#FFD700';
+                showAchievement('Grammar Master', 'Bạn đã thành thạo ngữ pháp tiếng Anh!');
+            } else if (percentage >= 80) {
+                performanceLevel = '🥇 GIỎI - Excellent Performance!';
+                levelColor = '#C0C0C0';
+                showAchievement('Grammar Expert', 'Kiến thức ngữ pháp rất vững vàng!');
+            } else if (percentage >= 70) {
+                performanceLevel = '🥈 KHÁ - Good Job!';
+                levelColor = '#CD7F32';
+            } else if (percentage >= 60) {
+                performanceLevel = '🥉 TRUNG BÌNH - Keep Learning!';
+                levelColor = '#808080';
+            } else {
+                performanceLevel = '📚 CẦN CỐ GẮNG - Practice More!';
+                levelColor = '#FF6B6B';
+            }
+            
+            document.getElementById('performance-level').innerHTML = 
+                `<div style="color: ${levelColor}; font-weight: bold; font-size: 1.2rem;">${performanceLevel}</div>`;
+            
+            // Thống kê chi tiết
+            const avgTime = Math.round(totalTime / currentQuestions.length);
+            const efficiency = Math.round((correctAnswers / totalTime) * 60);
+            
+            document.getElementById('detailed-stats').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                    <div class="stat-item">
+                        <div style="font-weight: bold;">Câu đúng</div>
+                        <div style="font-size: 1.5rem; color: #28a745;">${correctAnswers}/${currentQuestions.length}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div style="font-weight: bold;">Thời gian</div>
+                        <div style="font-size: 1.5rem; color: #6c757d;">${Math.floor(totalTime/60)}:${(totalTime%60).toString().padStart(2,'0')}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div style="font-weight: bold;">TB/câu</div>
+                        <div style="font-size: 1.5rem; color: #2d6cdf;">${avgTime}s</div>
+                    </div>
+                    <div class="stat-item">
+                        <div style="font-weight: bold;">Hiệu suất</div>
+                        <div style="font-size: 1.5rem; color: #ff6b6b;">${efficiency}/phút</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showAchievement(title, description) {
+            document.getElementById('achievement-title').textContent = title;
+            document.getElementById('achievement-description').textContent = description;
+            document.getElementById('achievement-popup').style.display = 'block';
+            
+            setTimeout(() => {
+                closeAchievement();
+            }, 3000);
+        }
+
+        function closeAchievement() {
+            document.getElementById('achievement-popup').style.display = 'none';
+        }
+
+        function resetGame() {
+            document.getElementById('results-screen').style.display = 'none';
+            document.getElementById('game-menu').style.display = 'block';
+            
+            // Reset all stats
+            questionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            document.getElementById('current-score').textContent = '0';
+            document.getElementById('correct-count').textContent = '0';
+        }
+
+        function shareResults() {
+            const percentage = Math.round((correctAnswers / currentQuestions.length) * 100);
+            const text = `🎓 Tôi vừa hoàn thành Grammar Master Challenge với ${percentage}% chính xác! 
+📊 Kết quả: ${correctAnswers}/${currentQuestions.length} câu đúng
+💯 Điểm số: ${score}
+⏱️ Thời gian: ${Math.floor(totalTime/60)}:${(totalTime%60).toString().padStart(2,'0')}
+
+Bạn có thể làm tốt hơn không? Thử ngay tại English Grammar Mastery!`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Grammar Master Challenge Result',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Kết quả đã được sao chép! Bạn có thể chia sẻ trên mạng xã hội.');
+                });
+            }
+        }
+
+        // Touch gesture support
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            // Swipe left to next question (cheat for testing)
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX < 0 && document.getElementById('game-area').style.display !== 'none') {
+                    // Swipe left - skip question (for demo purposes)
+                    console.log('Swipe detected');
+                }
+            }
+        }, { passive: true });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Save progress to localStorage
+        function saveProgress() {
+            const progress = {
+                level: currentLevel,
+                score: score,
+                correctAnswers: correctAnswers,
+                totalQuestions: currentQuestions.length,
+                date: new Date().toISOString()
+            };
+            
+            const allProgress = JSON.parse(localStorage.getItem('grammarMasterProgress') || '[]');
+            allProgress.push(progress);
+            localStorage.setItem('grammarMasterProgress', JSON.stringify(allProgress));
+        }
+
+        // Load and display previous results
+        function loadPreviousResults() {
+            const progress = JSON.parse(localStorage.getItem('grammarMasterProgress') || '[]');
+            if (progress.length > 0) {
+                const latest = progress[progress.length - 1];
+                console.log('Latest result:', latest);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPreviousResults();
+        });
+    </script>
+
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery</p>
+    </footer>
+</body>
+</html>

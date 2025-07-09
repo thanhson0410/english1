@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Conditionals Master - Game Luyện Tập Câu Điều Kiện</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .conditional-type {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .conditional-structure {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .sentence-parts {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+        
+        .if-clause, .main-clause {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .if-clause::before {
+            content: "IF CLAUSE";
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: #2196f3;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+        }
+        
+        .main-clause::before {
+            content: "MAIN CLAUSE";
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: #4caf50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+        }
+        
+        .connector {
+            font-size: 2em;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .blank-space {
+            background: #ffeb3b;
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
+            animation: blinkHighlight 2s infinite ease-in-out;
+        }
+        
+        @keyframes blinkHighlight {
+            0%, 100% { background: #ffeb3b; }
+            50% { background: #ffc107; }
+        }
+        
+        .verb-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .verb-option {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .verb-option:hover {
+            border-color: #28a745;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(40,167,69,0.3);
+        }
+        
+        .verb-option.selected {
+            border-color: #28a745;
+            background: #d4edda;
+            transform: scale(1.05);
+        }
+        
+        .verb-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            animation: correctPulse 0.8s ease;
+        }
+        
+        .verb-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        .probability-meter {
+            background: linear-gradient(to right, #ff4757 0%, #ffa502 50%, #2ed573 100%);
+            height: 25px;
+            border-radius: 15px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .probability-indicator {
+            position: absolute;
+            top: 0;
+            width: 6px;
+            height: 100%;
+            background: #333;
+            transition: left 0.5s ease;
+            border-radius: 3px;
+        }
+        
+        .probability-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        
+        .drag-drop-area {
+            min-height: 120px;
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .drag-drop-area.drag-over {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .draggable-word {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            cursor: move;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+        
+        .draggable-word:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        
+        .draggable-word.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        
+        .completion-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            z-index: 10000;
+            animation: completionBounce 1.5s ease;
+            pointer-events: none;
+        }
+        
+        @keyframes completionBounce {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(180deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .sentence-parts {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .connector {
+                font-size: 1.5em;
+            }
+            
+            .verb-form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .verb-option {
+                min-height: 60px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔀 Conditionals Master</h1>
+        <p>Game Luyện Tập Câu Điều Kiện</p>
+        <nav>
+            <ul>
+                <li><a href="../index.html">🏠 Trang Chủ</a></li>
+                <li><a href="../grammar-lessons/lessons.html">📚 Bài Học</a></li>
+                <li><a href="games.html">🎮 Trò Chơi</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="game-mode-selection" id="gameModeSection">
+            <h2>🎯 Chọn Loại Câu Điều Kiện</h2>
+            <div class="game-mode-grid">
+                <button class="game-mode-btn" onclick="startGame('type0')">
+                    <h3>0️⃣ Type 0</h3>
+                    <p>Sự Thật Hiển Nhiên</p>
+                    <small>If + Present, Present</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('type1')">
+                    <h3>1️⃣ Type 1</h3>
+                    <p>Có Thể Xảy Ra</p>
+                    <small>If + Present, Will + V</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('type2')">
+                    <h3>2️⃣ Type 2</h3>
+                    <p>Không Thực Tế</p>
+                    <small>If + Past, Would + V</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('type3')">
+                    <h3>3️⃣ Type 3</h3>
+                    <p>Không Thể Thay Đổi</p>
+                    <small>If + Past Perfect, Would have + V3</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('mixed')">
+                    <h3>🎭 Mixed Types</h3>
+                    <p>Câu Điều Kiện Hỗn Hợp</p>
+                    <small>Tất cả các loại</small>
+                </button>
+                <button class="game-mode-btn" onclick="startGame('advanced')">
+                    <h3>🏆 Nâng Cao</h3>
+                    <p>Unless, Wish, Inverted</p>
+                    <small>Cấu trúc đặc biệt</small>
+                </button>
+            </div>
+        </section>
+
+        <section class="game-play" id="gamePlaySection" style="display: none;">
+            <div class="game-stats">
+                <div class="stat-card">
+                    <h4>📊 Điểm Số</h4>
+                    <div class="score" id="scoreDisplay">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>❓ Câu Hỏi</h4>
+                    <div id="questionNumber">1/10</div>
+                </div>
+                <div class="stat-card">
+                    <h4>🎯 Độ Chính Xác</h4>
+                    <div id="accuracyDisplay">100%</div>
+                </div>
+                <div class="stat-card">
+                    <h4>🔥 Streak</h4>
+                    <div id="streakDisplay">0</div>
+                </div>
+            </div>
+
+            <div class="conditional-type" id="conditionalTypeDisplay"></div>
+            
+            <div class="conditional-structure" id="structureDisplay"></div>
+
+            <div class="probability-meter" id="probabilityMeter" style="display: none;">
+                <div class="probability-indicator" id="probabilityIndicator"></div>
+            </div>
+            <div class="probability-labels" id="probabilityLabels" style="display: none;">
+                <span>Không thể</span>
+                <span>Ít khả năng</span>
+                <span>Có thể</span>
+                <span>Rất có thể</span>
+                <span>Chắc chắn</span>
+            </div>
+
+            <div class="question-container">
+                <h3 id="questionText">Hoàn thành câu điều kiện:</h3>
+                
+                <div class="sentence-parts" id="sentenceParts">
+                    <div class="if-clause" id="ifClause"></div>
+                    <div class="connector">➡️</div>
+                    <div class="main-clause" id="mainClause"></div>
+                </div>
+
+                <div class="verb-form-grid" id="verbFormGrid"></div>
+
+                <div class="drag-drop-area" id="dragDropArea" style="display: none;">
+                    <p>Kéo và thả các từ để tạo thành câu hoàn chỉnh:</p>
+                    <div id="dropZone"></div>
+                </div>
+
+                <div class="explanation-box" id="explanationBox" style="display: none;">
+                    <h4>💡 Giải Thích:</h4>
+                    <p id="explanationText"></p>
+                    <div id="exampleSentences"></div>
+                </div>
+
+                <div class="game-controls">
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                        Câu Tiếp Theo ➡️
+                    </button>
+                    <button class="btn btn-secondary" onclick="showHint()" id="hintBtn">
+                        💡 Gợi Ý
+                    </button>
+                    <button class="btn btn-info" onclick="showStructure()" id="structureBtn">
+                        📐 Cấu Trúc
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="game-results" id="gameResultsSection" style="display: none;">
+            <div class="results-container">
+                <h2 id="resultsTitle">🎉 Hoàn Thành!</h2>
+                <div class="final-score" id="finalScore"></div>
+                <div class="star-rating" id="starRating"></div>
+                
+                <div class="results-stats">
+                    <div class="result-stat">
+                        <span>Tổng câu hỏi:</span>
+                        <span id="totalQuestions">10</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Trả lời đúng:</span>
+                        <span id="correctAnswers">0</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Độ chính xác:</span>
+                        <span id="finalAccuracy">0%</span>
+                    </div>
+                    <div class="result-stat">
+                        <span>Streak tối đa:</span>
+                        <span id="maxStreak">0</span>
+                    </div>
+                </div>
+
+                <div class="achievements" id="achievementsDisplay"></div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="resetGame()">🔄 Chơi Lại</button>
+                    <button class="btn btn-secondary" onclick="location.href='games.html'">🎮 Game Khác</button>
+                    <button class="btn btn-secondary" onclick="location.href='../grammar-lessons/conditionals.html'">📚 Ôn Lý Thuyết</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 English Grammar Mastery - Conditionals Master Game</p>
+    </footer>
+
+    <script>
+        // Game variables
+        let currentGameMode = '';
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 10;
+        let streak = 0;
+        let maxStreak = 0;
+        let questions = [];
+        let isAnswered = false;
+
+        // Question sets for different conditional types
+        const questionSets = {
+            type0: [
+                {
+                    ifClause: "If you heat water to 100°C",
+                    mainClause: "it _____",
+                    options: ["boils", "will boil", "would boil", "boiled"],
+                    correct: 0,
+                    explanation: "Type 0 diễn tả sự thật hiển nhiên. Dùng Present Simple ở cả hai mệnh đề.",
+                    structure: "If + Present Simple, Present Simple",
+                    type: "Type 0 - Sự Thật Hiển Nhiên",
+                    probability: 100
+                },
+                {
+                    ifClause: "If people don't eat",
+                    mainClause: "they _____",
+                    options: ["die", "will die", "would die", "died"],
+                    correct: 0,
+                    explanation: "Đây là sự thật khoa học, luôn đúng. Dùng Present Simple.",
+                    structure: "If + Present Simple, Present Simple",
+                    type: "Type 0 - Sự Thật Khoa Học",
+                    probability: 100
+                },
+                {
+                    ifClause: "If you mix red and blue",
+                    mainClause: "you _____ purple",
+                    options: ["get", "will get", "would get", "got"],
+                    correct: 0,
+                    explanation: "Kết quả luôn như vậy, không phụ thuộc vào điều kiện đặc biệt.",
+                    structure: "If + Present Simple, Present Simple",
+                    type: "Type 0 - Quy Luật Tự Nhiên",
+                    probability: 100
+                }
+            ],
+            type1: [
+                {
+                    ifClause: "If it rains tomorrow",
+                    mainClause: "we _____ inside",
+                    options: ["stay", "will stay", "would stay", "stayed"],
+                    correct: 1,
+                    explanation: "Type 1 diễn tả điều có thể xảy ra trong tương lai. If + Present, will + V.",
+                    structure: "If + Present Simple, will + Verb",
+                    type: "Type 1 - Có Thể Xảy Ra",
+                    probability: 70
+                },
+                {
+                    ifClause: "If you study hard",
+                    mainClause: "you _____ the exam",
+                    options: ["pass", "will pass", "would pass", "passed"],
+                    correct: 1,
+                    explanation: "Kết quả có khả năng xảy ra nếu điều kiện được thỏa mãn.",
+                    structure: "If + Present Simple, will + Verb",
+                    type: "Type 1 - Dự Đoán Tương Lai",
+                    probability: 80
+                },
+                {
+                    ifClause: "If she calls me",
+                    mainClause: "I _____ her the news",
+                    options: ["tell", "will tell", "would tell", "told"],
+                    correct: 1,
+                    explanation: "Hành động sẽ thực hiện khi điều kiện xảy ra.",
+                    structure: "If + Present Simple, will + Verb",
+                    type: "Type 1 - Kế Hoạch",
+                    probability: 75
+                }
+            ],
+            type2: [
+                {
+                    ifClause: "If I were rich",
+                    mainClause: "I _____ a big house",
+                    options: ["buy", "will buy", "would buy", "bought"],
+                    correct: 2,
+                    explanation: "Type 2 diễn tả điều không có thật ở hiện tại. If + Past, would + V.",
+                    structure: "If + Past Simple, would + Verb",
+                    type: "Type 2 - Không Thực Tế",
+                    probability: 20
+                },
+                {
+                    ifClause: "If she had more time",
+                    mainClause: "she _____ traveling",
+                    options: ["goes", "will go", "would go", "went"],
+                    correct: 2,
+                    explanation: "Diễn tả ước muốn không thể thực hiện hiện tại.",
+                    structure: "If + Past Simple, would + Verb",
+                    type: "Type 2 - Ước Muốn",
+                    probability: 30
+                },
+                {
+                    ifClause: "If I were you",
+                    mainClause: "I _____ that job",
+                    options: ["take", "will take", "would take", "took"],
+                    correct: 2,
+                    explanation: "Cấu trúc đưa ra lời khuyên giả định.",
+                    structure: "If + Past Simple, would + Verb",
+                    type: "Type 2 - Lời Khuyên",
+                    probability: 0
+                }
+            ],
+            type3: [
+                {
+                    ifClause: "If I had studied harder",
+                    mainClause: "I _____ the exam",
+                    options: ["passed", "will pass", "would pass", "would have passed"],
+                    correct: 3,
+                    explanation: "Type 3 diễn tả điều không thể thay đổi trong quá khứ.",
+                    structure: "If + Past Perfect, would have + V3",
+                    type: "Type 3 - Hối Tiếc",
+                    probability: 0
+                },
+                {
+                    ifClause: "If they had left earlier",
+                    mainClause: "they _____ the train",
+                    options: ["catch", "will catch", "would catch", "would have caught"],
+                    correct: 3,
+                    explanation: "Kết quả đã không xảy ra vì điều kiện không được thỏa mãn.",
+                    structure: "If + Past Perfect, would have + V3",
+                    type: "Type 3 - Cơ Hội Đã Mất",
+                    probability: 0
+                },
+                {
+                    ifClause: "If she had known the truth",
+                    mainClause: "she _____ differently",
+                    options: ["acts", "will act", "would act", "would have acted"],
+                    correct: 3,
+                    explanation: "Hành động đã có thể khác nếu biết thông tin trong quá khứ.",
+                    structure: "If + Past Perfect, would have + V3",
+                    type: "Type 3 - Giả Định Quá Khứ",
+                    probability: 0
+                }
+            ]
+        };
+
+        function startGame(mode) {
+            currentGameMode = mode;
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            streak = 0;
+            maxStreak = 0;
+            
+            // Set questions based on mode
+            if (mode === 'mixed') {
+                questions = shuffleArray([
+                    ...questionSets.type0,
+                    ...questionSets.type1,
+                    ...questionSets.type2,
+                    ...questionSets.type3
+                ]).slice(0, 15);
+                totalQuestions = 15;
+            } else {
+                questions = shuffleArray(questionSets[mode] || questionSets.type1);
+                totalQuestions = 10;
+            }
+            
+            document.getElementById('gameModeSection').style.display = 'none';
+            document.getElementById('gamePlaySection').style.display = 'block';
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                endGame();
+                return;
+            }
+            
+            isAnswered = false;
+            const question = questions[currentQuestion];
+            
+            // Update UI
+            document.getElementById('questionNumber').textContent = `${currentQuestion + 1}/${totalQuestions}`;
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('accuracyDisplay').textContent = 
+                Math.round((correctAnswers / Math.max(currentQuestion, 1)) * 100) + '%';
+            document.getElementById('streakDisplay').textContent = streak;
+            
+            // Show conditional type and structure
+            document.getElementById('conditionalTypeDisplay').textContent = question.type;
+            document.getElementById('structureDisplay').textContent = question.structure;
+            
+            // Show probability meter for certain types
+            if (question.probability !== undefined) {
+                document.getElementById('probabilityMeter').style.display = 'block';
+                document.getElementById('probabilityLabels').style.display = 'flex';
+                document.getElementById('probabilityIndicator').style.left = question.probability + '%';
+            } else {
+                document.getElementById('probabilityMeter').style.display = 'none';
+                document.getElementById('probabilityLabels').style.display = 'none';
+            }
+            
+            // Show sentence parts
+            document.getElementById('ifClause').innerHTML = question.ifClause;
+            document.getElementById('mainClause').innerHTML = 
+                question.mainClause.replace('_____', '<span class="blank-space">_____</span>');
+            
+            // Create answer options
+            const verbFormGrid = document.getElementById('verbFormGrid');
+            verbFormGrid.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'verb-option';
+                optionDiv.onclick = () => selectAnswer(index);
+                
+                optionDiv.innerHTML = `<strong>${option}</strong>`;
+                verbFormGrid.appendChild(optionDiv);
+            });
+            
+            // Hide explanation and next button
+            document.getElementById('explanationBox').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('hintBtn').style.display = 'inline-block';
+            document.getElementById('structureBtn').style.display = 'inline-block';
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.verb-option');
+            
+            // Remove previous classes
+            options.forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected answer
+            options[selectedIndex].classList.add('selected');
+            
+            if (selectedIndex === question.correct) {
+                options[selectedIndex].classList.add('correct');
+                correctAnswers++;
+                score += calculateScore();
+                streak++;
+                maxStreak = Math.max(maxStreak, streak);
+                
+                // Show completion animation
+                showCompletionAnimation('✅');
+                
+                // Update main clause with correct answer
+                document.getElementById('mainClause').innerHTML = 
+                    question.mainClause.replace('_____', 
+                    `<span style="background: #d4edda; padding: 5px 15px; border-radius: 20px; font-weight: bold;">${question.options[question.correct]}</span>`);
+                
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+                streak = 0;
+                
+                showCompletionAnimation('❌');
+                
+                // Show correct answer
+                document.getElementById('mainClause').innerHTML = 
+                    question.mainClause.replace('_____', 
+                    `<span style="background: #f8d7da; padding: 5px 15px; border-radius: 20px; font-weight: bold;">${question.options[question.correct]}</span>`);
+            }
+            
+            // Show explanation
+            document.getElementById('explanationText').textContent = question.explanation;
+            
+            // Add example sentences
+            const examples = getExampleSentences(question.type);
+            document.getElementById('exampleSentences').innerHTML = 
+                '<h5>📚 Ví dụ khác:</h5>' + examples.map(ex => `<p><em>${ex}</em></p>`).join('');
+            
+            document.getElementById('explanationBox').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('hintBtn').style.display = 'none';
+        }
+
+        function getExampleSentences(type) {
+            const examples = {
+                "Type 0 - Sự Thật Hiển Nhiên": [
+                    "If you freeze water, it becomes ice.",
+                    "If plants don't get water, they die."
+                ],
+                "Type 1 - Có Thể Xảy Ra": [
+                    "If I see John, I'll tell him.",
+                    "If you don't hurry, you'll be late."
+                ],
+                "Type 2 - Không Thực Tế": [
+                    "If I won the lottery, I would travel the world.",
+                    "If she were here, she would help us."
+                ],
+                "Type 3 - Hối Tiếc": [
+                    "If I had known, I would have come earlier.",
+                    "If they had invited me, I would have gone."
+                ]
+            };
+            
+            return examples[type] || ["Không có ví dụ cho loại này."];
+        }
+
+        function calculateScore() {
+            let baseScore = 15;
+            if (streak > 2) baseScore += streak * 3;
+            return baseScore;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function showHint() {
+            const question = questions[currentQuestion];
+            const hints = {
+                "Type 0": "Đây là sự thật luôn đúng. Dùng Present Simple ở cả hai mệnh đề.",
+                "Type 1": "Điều này có thể xảy ra. If + Present, will + V.",
+                "Type 2": "Điều này không thực tế. If + Past, would + V.",
+                "Type 3": "Điều này đã không xảy ra. If + Past Perfect, would have + V3."
+            };
+            
+            const typeKey = question.type.split(' ')[0] + ' ' + question.type.split(' ')[1];
+            alert(hints[typeKey] || "Đọc kỹ cấu trúc và ngữ cảnh!");
+        }
+
+        function showStructure() {
+            const question = questions[currentQuestion];
+            alert(`Cấu trúc: ${question.structure}\n\nLoại: ${question.type}`);
+        }
+
+        function showCompletionAnimation(symbol) {
+            const animation = document.createElement('div');
+            animation.className = 'completion-animation';
+            animation.textContent = symbol;
+            document.body.appendChild(animation);
+            
+            setTimeout(() => {
+                document.body.removeChild(animation);
+            }, 1500);
+        }
+
+        function endGame() {
+            const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            document.getElementById('gamePlaySection').style.display = 'none';
+            document.getElementById('gameResultsSection').style.display = 'block';
+            
+            // Show results
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('correctAnswers').textContent = correctAnswers;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('maxStreak').textContent = maxStreak;
+            
+            // Show star rating
+            showStarRating(accuracy);
+            
+            // Show achievements
+            showFinalAchievements();
+        }
+
+        function showStarRating(accuracy) {
+            const starContainer = document.getElementById('starRating');
+            let stars = 0;
+            
+            if (accuracy >= 90) stars = 3;
+            else if (accuracy >= 70) stars = 2;
+            else if (accuracy >= 50) stars = 1;
+            
+            let starHTML = '';
+            for (let i = 0; i < 3; i++) {
+                starHTML += i < stars ? '⭐' : '☆';
+            }
+            
+            starContainer.innerHTML = `<div class="stars">${starHTML}</div>`;
+        }
+
+        function showFinalAchievements() {
+            const achievements = [];
+            
+            if (correctAnswers === totalQuestions) {
+                achievements.push("🎯 Perfect Conditional - Trả lời đúng 100%!");
+            }
+            if (maxStreak >= 5) {
+                achievements.push("🔥 Conditional Chain - " + maxStreak + " câu đúng liên tiếp!");
+            }
+            if (currentGameMode === 'mixed' && correctAnswers >= 12) {
+                achievements.push("🏆 Master of All Types - Thành thạo mọi loại câu điều kiện!");
+            }
+            if (currentGameMode === 'type3' && correctAnswers >= 8) {
+                achievements.push("⏰ Time Master - Làm chủ câu điều kiện loại 3!");
+            }
+            
+            const achievementContainer = document.getElementById('achievementsDisplay');
+            achievementContainer.innerHTML = achievements.length > 0 ? 
+                '<h3>🏆 Thành Tích</h3>' + achievements.map(a => `<div class="achievement">${a}</div>`).join('') : 
+                '<p>Tiếp tục luyện tập để mở khóa thành tích!</p>';
+        }
+
+        function resetGame() {
+            document.getElementById('gameResultsSection').style.display = 'none';
+            document.getElementById('gameModeSection').style.display = 'block';
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Initialize default questions
+        questions = shuffleArray(questionSets.type1);
+    </script>
+</body>
+</html>

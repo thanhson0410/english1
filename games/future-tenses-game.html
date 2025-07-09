@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Future Tenses Game | English Grammar</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">🎓 English Grammar</a>
+            <div class="nav-links">
+                <a href="../grammar-lessons/lessons.html">📚 Lessons</a>
+                <a href="games.html">🎮 Games</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="game-container">
+            <header class="game-header">
+                <h1>🕒 Future Tenses Challenge</h1>
+                <p class="game-subtitle">Test your knowledge of Future Tenses!</p>
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Score:</span>
+                        <span id="score" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Lives:</span>
+                        <span id="lives" class="stat-value">❤️❤️❤️</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Question:</span>
+                        <span id="current-question" class="stat-value">1</span>/<span id="total-questions" class="stat-value">15</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="game-modes">
+                <button class="mode-btn active" onclick="setMode('mixed')">🎯 Mixed Questions</button>
+                <button class="mode-btn" onclick="setMode('fill-blanks')">📝 Fill in the Blanks</button>
+                <button class="mode-btn" onclick="setMode('choose-tense')">🔍 Choose the Tense</button>
+            </div>
+
+            <div class="game-area">
+                <div id="question-container" class="question-container">
+                    <div id="question-text" class="question-text"></div>
+                    <div id="options-container" class="options-container"></div>
+                    <div id="explanation" class="explanation hidden"></div>
+                </div>
+
+                <div class="game-controls">
+                    <button id="next-btn" class="action-btn hidden" onclick="nextQuestion()">Next Question ➡️</button>
+                    <button id="restart-btn" class="action-btn hidden" onclick="restartGame()">🔄 Restart</button>
+                </div>
+            </div>
+
+            <div id="game-over" class="game-over hidden">
+                <h2>🎉 Game Complete!</h2>
+                <div class="final-stats">
+                    <p>Final Score: <span id="final-score"></span></p>
+                    <p>Accuracy: <span id="accuracy"></span>%</p>
+                    <p id="performance-message"></p>
+                </div>
+                <div class="game-over-actions">
+                    <button onclick="restartGame()" class="action-btn">🔄 Play Again</button>
+                    <a href="../grammar-lessons/future-tenses.html" class="action-btn">📚 Review Lesson</a>
+                    <a href="games.html" class="action-btn">🎮 Other Games</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questions = [
+            // Mixed Questions
+            {
+                type: 'multiple-choice',
+                question: 'The phone is ringing! I _____ it.',
+                options: ['will answer', 'am going to answer', 'answer', 'am answering'],
+                correct: 0,
+                explanation: '"Will" is used for spontaneous decisions made at the moment of speaking.',
+                difficulty: 'easy'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'Look at those dark clouds! It _____ rain.',
+                options: ['will', 'is going to', 'is', 'was going to'],
+                correct: 1,
+                explanation: '"Be going to" is used for predictions based on present evidence.',
+                difficulty: 'easy'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'The train _____ at 9:30 AM sharp.',
+                options: ['will leave', 'is going to leave', 'leaves', 'is leaving'],
+                correct: 2,
+                explanation: 'Present Simple is used for fixed schedules and timetables.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'I _____ my friend at the café tomorrow at 3 PM.',
+                options: ['will meet', 'am going to meet', 'meet', 'am meeting'],
+                correct: 3,
+                explanation: 'Present Continuous is used for specific arrangements and appointments.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'I promise I _____ you with your homework.',
+                options: ['am going to help', 'help', 'will help', 'am helping'],
+                correct: 2,
+                explanation: '"Will" is used for promises and offers.',
+                difficulty: 'easy'
+            },
+            {
+                type: 'multiple-choice',
+                question: '_____ you have some coffee?',
+                options: ['Are you going to', 'Do', 'Will', 'Are'],
+                correct: 2,
+                explanation: '"Will" is used for offers and polite requests.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'We _____ to Japan next summer. We\'ve already booked the tickets.',
+                options: ['will travel', 'are going to travel', 'travel', 'are traveling'],
+                correct: 1,
+                explanation: '"Be going to" is used for plans and intentions already decided.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'The movie _____ at 8 PM tonight.',
+                options: ['will start', 'is going to start', 'starts', 'is starting'],
+                correct: 2,
+                explanation: 'Present Simple is used for scheduled events.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'I _____ dinner for us tonight. I bought all the ingredients.',
+                options: ['will cook', 'am going to cook', 'cook', 'am cooking'],
+                correct: 1,
+                explanation: '"Be going to" shows prior planning and preparation.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'Don\'t worry! I _____ late.',
+                options: ['am not going to be', 'will not be', 'am not being', 'am not'],
+                correct: 1,
+                explanation: '"Will" is used for promises and reassurances.',
+                difficulty: 'hard'
+            },
+            {
+                type: 'fill-blank',
+                question: 'She _____ (fly) to London next week. Her flight is already booked.',
+                answer: ['is flying', 'is going to fly'],
+                explanation: 'Present Continuous or "be going to" for planned arrangements.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'fill-blank',
+                question: 'The weather forecast says it _____ (be) sunny tomorrow.',
+                answer: ['will be'],
+                explanation: '"Will" is used for weather predictions and forecasts.',
+                difficulty: 'easy'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'Watch out! You _____ fall!',
+                options: ['will', 'are going to', 'are', 'will be'],
+                correct: 1,
+                explanation: '"Be going to" is used for immediate predictions with visible evidence.',
+                difficulty: 'hard'
+            },
+            {
+                type: 'multiple-choice',
+                question: 'I think robots _____ do most of our work in the future.',
+                options: ['are going to', 'will', 'are', 'would'],
+                correct: 1,
+                explanation: '"Will" is used for predictions and opinions about the future.',
+                difficulty: 'medium'
+            },
+            {
+                type: 'fill-blank',
+                question: 'The course _____ (begin) on Monday and _____ (end) on Friday.',
+                answer: ['begins', 'ends'],
+                explanation: 'Present Simple for fixed schedules and timetables.',
+                difficulty: 'hard'
+            }
+        ];
+
+        let currentMode = 'mixed';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let totalQuestions = 15;
+        let correctAnswers = 0;
+        let gameQuestions = [];
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            restartGame();
+        }
+
+        function initGame() {
+            // Filter questions based on mode
+            if (currentMode === 'fill-blanks') {
+                gameQuestions = questions.filter(q => q.type === 'fill-blank');
+            } else if (currentMode === 'choose-tense') {
+                gameQuestions = questions.filter(q => q.type === 'multiple-choice');
+            } else {
+                gameQuestions = [...questions];
+            }
+            
+            // Shuffle questions
+            gameQuestions = gameQuestions.sort(() => Math.random() - 0.5);
+            totalQuestions = Math.min(15, gameQuestions.length);
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            lives = 3;
+            correctAnswers = 0;
+            
+            updateStats();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= totalQuestions || lives <= 0) {
+                endGame();
+                return;
+            }
+
+            const question = gameQuestions[currentQuestionIndex];
+            const questionContainer = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            
+            questionContainer.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            
+            document.getElementById('explanation').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+
+            if (question.type === 'multiple-choice') {
+                question.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.onclick = () => checkAnswer(index);
+                    optionsContainer.appendChild(button);
+                });
+            } else if (question.type === 'fill-blank') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'answer-input';
+                input.placeholder = 'Type your answer here...';
+                input.onkeypress = (e) => {
+                    if (e.key === 'Enter') {
+                        checkFillBlankAnswer(input.value.trim());
+                    }
+                };
+                
+                const submitBtn = document.createElement('button');
+                submitBtn.className = 'option-btn submit-btn';
+                submitBtn.textContent = 'Submit Answer';
+                submitBtn.onclick = () => checkFillBlankAnswer(input.value.trim());
+                
+                optionsContainer.appendChild(input);
+                optionsContainer.appendChild(submitBtn);
+                input.focus();
+            }
+        }
+
+        function checkAnswer(selectedIndex) {
+            const question = gameQuestions[currentQuestionIndex];
+            const optionBtns = document.querySelectorAll('.option-btn');
+            
+            optionBtns.forEach(btn => btn.disabled = true);
+            
+            if (selectedIndex === question.correct) {
+                optionBtns[selectedIndex].classList.add('correct');
+                score += 10;
+                correctAnswers++;
+                showFeedback(true);
+            } else {
+                optionBtns[selectedIndex].classList.add('incorrect');
+                optionBtns[question.correct].classList.add('correct');
+                lives--;
+                showFeedback(false);
+            }
+            
+            showExplanation(question.explanation);
+            updateStats();
+        }
+
+        function checkFillBlankAnswer(userAnswer) {
+            const question = gameQuestions[currentQuestionIndex];
+            const isCorrect = question.answer.some(answer => 
+                userAnswer.toLowerCase() === answer.toLowerCase()
+            );
+            
+            document.querySelector('.answer-input').disabled = true;
+            document.querySelector('.submit-btn').disabled = true;
+            
+            if (isCorrect) {
+                document.querySelector('.answer-input').classList.add('correct');
+                score += 15;
+                correctAnswers++;
+                showFeedback(true);
+            } else {
+                document.querySelector('.answer-input').classList.add('incorrect');
+                lives--;
+                showFeedback(false);
+                
+                // Show correct answer
+                const correctDiv = document.createElement('div');
+                correctDiv.className = 'correct-answer';
+                correctDiv.innerHTML = `<strong>Correct answer:</strong> ${question.answer.join(' or ')}`;
+                document.getElementById('options-container').appendChild(correctDiv);
+            }
+            
+            showExplanation(question.explanation);
+            updateStats();
+        }
+
+        function showFeedback(isCorrect) {
+            const feedback = document.createElement('div');
+            feedback.className = 'feedback';
+            
+            if (isCorrect) {
+                feedback.innerHTML = '🎉 Excellent! Well done!';
+                feedback.classList.add('feedback-correct');
+            } else {
+                feedback.innerHTML = '❌ Not quite right. Keep trying!';
+                feedback.classList.add('feedback-incorrect');
+            }
+            
+            document.getElementById('question-container').appendChild(feedback);
+            
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    feedback.parentNode.removeChild(feedback);
+                }
+            }, 2000);
+        }
+
+        function showExplanation(explanation) {
+            const explanationDiv = document.getElementById('explanation');
+            explanationDiv.innerHTML = `<strong>💡 Explanation:</strong> ${explanation}`;
+            explanationDiv.classList.remove('hidden');
+            
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+            document.getElementById('total-questions').textContent = totalQuestions;
+            
+            const hearts = '❤️'.repeat(lives) + '🖤'.repeat(3 - lives);
+            document.getElementById('lives').textContent = hearts;
+        }
+
+        function endGame() {
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('game-over').classList.remove('hidden');
+            
+            const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('accuracy').textContent = accuracy;
+            
+            let message = '';
+            if (accuracy >= 90) {
+                message = '🏆 Outstanding! You\'ve mastered Future Tenses!';
+            } else if (accuracy >= 75) {
+                message = '🌟 Great job! You have a solid understanding!';
+            } else if (accuracy >= 60) {
+                message = '👍 Good work! Keep practicing to improve!';
+            } else {
+                message = '📚 Keep studying! Review the lesson and try again!';
+            }
+            
+            document.getElementById('performance-message').textContent = message;
+        }
+
+        function restartGame() {
+            document.getElementById('question-container').style.display = 'block';
+            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('restart-btn').classList.add('hidden');
+            initGame();
+        }
+
+        // Initialize game on page load
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 2px solid #6366f1;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #6366f1;
+        }
+
+        .stat-value {
+            color: #1f2937;
+            font-weight: bold;
+        }
+
+        .game-modes {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .mode-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .mode-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .question-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .option-btn {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: #6366f1;
+            background: #f0f9ff;
+        }
+
+        .option-btn.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+
+        .option-btn.incorrect {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .answer-input.correct {
+            border-color: #22c55e;
+            background: #dcfce7;
+        }
+
+        .answer-input.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #6366f1;
+            color: white;
+            border: 2px solid #6366f1;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #5856eb;
+        }
+
+        .correct-answer {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            color: #92400e;
+        }
+
+        .explanation {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            color: #1e40af;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .game-controls {
+            text-align: center;
+        }
+
+        .action-btn {
+            padding: 0.75rem 2rem;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #5856eb;
+            transform: translateY(-2px);
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .final-stats {
+            margin: 2rem 0;
+        }
+
+        .final-stats p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+        }
+
+        .game-over-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            z-index: 1000;
+            animation: fadeInOut 2s ease-in-out;
+        }
+
+        .feedback-correct {
+            background: #dcfce7;
+            color: #15803d;
+            border: 2px solid #22c55e;
+        }
+
+        .feedback-incorrect {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Mobile optimizations for iPhone 15 Pro Max */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1rem;
+            }
+
+            .game-stats {
+                gap: 1rem;
+            }
+
+            .stat-item {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .mode-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .question-container {
+                padding: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+            }
+
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+
+            .option-btn {
+                padding: 1.2rem;
+                font-size: 1rem;
+                min-height: 60px;
+            }
+
+            .answer-input {
+                padding: 1.2rem;
+                font-size: 1rem;
+            }
+
+            .game-over-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</body>
+</html>
