@@ -49,13 +49,13 @@ A comprehensive, interactive English grammar learning platform designed for B1-B
 ## 🚀 Quick Start
 
 ### Online Access
-Visit: `https://thanhson0410.github.io/english2025/`
+Visit: `https://thanhson0410.github.io/english1/`
 
 ### Local Development
 1. Clone the repository:
 ```bash
-git clone https://github.com/thanhson0410/english2025.git
-cd english2025
+git clone https://github.com/thanhson0410/english1.git
+cd english1
 ```
 
 2. Start local server:

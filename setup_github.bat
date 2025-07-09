@@ -97,13 +97,13 @@ echo.
 
 echo Setting up remote repository...
 git remote remove origin >nul 2>&1
-git remote add origin https://github.com/thanhson0410/english2025.git
+git remote add origin https://github.com/thanhson0410/english1.git
 if %errorlevel% neq 0 (
     echo ❌ Failed to add remote repository
     pause
     exit /b 1
 )
-echo ✅ Remote repository set: https://github.com/thanhson0410/english2025.git
+echo ✅ Remote repository set: https://github.com/thanhson0410/english1.git
 echo.
 
 echo Setting main branch...
@@ -136,16 +136,16 @@ echo        🎉 SUCCESS! Uploaded to GitHub
 echo ========================================
 echo.
 echo Your English Grammar Website is now available at:
-echo 📋 Repository: https://github.com/thanhson0410/english2025
+echo 📋 Repository: https://github.com/thanhson0410/english1
 echo.
 echo To enable GitHub Pages:
-echo 1. Go to: https://github.com/thanhson0410/english2025/settings/pages
+echo 1. Go to: https://github.com/thanhson0410/english1/settings/pages
 echo 2. Under "Source", select "Deploy from a branch"
 echo 3. Choose branch "main" and folder "/ (root)"
 echo 4. Click "Save"
 echo.
 echo Your website will be live at:
-echo 🌐 https://thanhson0410.github.io/english2025/
+echo 🌐 https://thanhson0410.github.io/english1/
 echo.
 echo ✅ Project includes:
 echo   - 18 complete grammar lessons

@@ -1,6 +1,6 @@
-# 🚀 Upload to GitHub: english2025
+# 🚀 Upload to GitHub: english1
 
-## Repository: https://github.com/thanhson0410/english2025.git
+## Repository: https://github.com/thanhson0410/english1.git
 
 ### 📋 Quick Steps
 
@@ -30,14 +30,14 @@ When prompted for credentials:
 
 ### 🌐 Enable GitHub Pages
 After successful upload:
-1. Go to: https://github.com/thanhson0410/english2025/settings/pages
+1. Go to: https://github.com/thanhson0410/english1/settings/pages
 2. Source: "Deploy from a branch" 
 3. Branch: **main**
 4. Folder: **/ (root)**
 5. Click "Save"
 
 **Your website will be live at:**
-🔗 **https://thanhson0410.github.io/english2025/**
+🔗 **https://thanhson0410.github.io/english1/**
 
 ### ⚡ Manual Commands (if script fails)
 ```powershell
@@ -69,7 +69,7 @@ git push origin main
 ### ❗ Troubleshooting
 - **Git not recognized**: Install Git and restart terminal
 - **Authentication failed**: Use Personal Access Token as password
-- **Repository not found**: Make sure https://github.com/thanhson0410/english2025 exists
+- **Repository not found**: Make sure https://github.com/thanhson0410/english1 exists
 - **Push failed**: Check internet connection and credentials
 
 ### 📞 Files Created
